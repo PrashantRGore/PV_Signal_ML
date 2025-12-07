@@ -7,10 +7,6 @@ font = "sans serif"
 
 [client]
 showErrorDetails = true
-logger.level = "info"
-
-[logger]
-level = "info"
 
 [server]
 port = 8501
