@@ -76,7 +76,7 @@
 
 1. Go to **https://github.com/new**
 2. Fill in:
-   - **Repository name:** `pv-signal-ml`
+   - **Repository name:** `PV_Signal_ML`
    - **Description:** 
      ```
      Research prototype demonstrating pharmacovigilance signal detection 
@@ -92,7 +92,7 @@
 
 ```powershell
 cd C:\Users\koreo\Downloads\pv-signal-ml
-git remote add origin https://github.com/PrashantRGore/pv-signal-ml.git
+git remote add origin https://github.com/PrashantRGore/PV_Signal_ML.git
 git branch -M main
 git push -u origin main
 ```
@@ -134,7 +134,7 @@ This is a research prototype. Contributions are welcome!
 
 ### Step 5: Verify & Share (1 minute)
 
-1. Go to your repository: https://github.com/PrashantRGore/pv-signal-ml
+1. Go to your repository: https://github.com/PrashantRGore/PV_Signal_ML
 2. Verify:
    - All files present
    - README displays with disclaimer

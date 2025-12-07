@@ -54,7 +54,7 @@ See VALIDATION_STATUS.md for details.
 
 1. Go to **https://github.com/new**
 2. Fill in the form:
-   - **Repository name:** `pv-signal-ml`
+   - **Repository name:** `PV_Signal_ML`
    - **Description:** (Use the recommended description above)
    - **Visibility:** Public ✅
    - **Initialize with:** None (we have commits)
@@ -64,7 +64,7 @@ See VALIDATION_STATUS.md for details.
 
 ```powershell
 cd C:\Users\koreo\Downloads\pv-signal-ml
-git remote add origin https://github.com/PrashantRGore/pv-signal-ml.git
+git remote add origin https://github.com/PrashantRGore/PV_Signal_ML.git
 git branch -M main
 git push -u origin main
 ```
@@ -187,7 +187,7 @@ Your repository will include:
 - [x] All files committed
 
 ### After Creating Repository
-- [ ] Repository created at https://github.com/PrashantRGore/pv-signal-ml
+- [ ] Repository created at https://github.com/PrashantRGore/PV_Signal_ML
 - [ ] Description updated with recommended text
 - [ ] Topics added (pharmacovigilance, signal-detection, etc.)
 - [ ] License added (Apache 2.0)
@@ -267,7 +267,7 @@ If you want to deploy the web interface:
 1. Go to **https://streamlit.io/cloud**
 2. Click "New app"
 3. Select:
-   - **Repository:** PrashantRGore/pv-signal-ml
+   - **Repository:** PrashantRGore/PV_Signal_ML
    - **Branch:** main
    - **Main file:** pv_fullstack.py
 4. Click "Deploy"

@@ -223,11 +223,12 @@ This document explains:
 
 ## 📝 What to Say in Different Contexts
 
-### GitHub Repository
+### GitHub Description (Recommended)
 ```
 Research prototype demonstrating pharmacovigilance signal detection 
 algorithms, ML-based triage, and regulatory compliance concepts. 
-Educational/portfolio project. NOT validated for production use.
+Educational/portfolio project. NOT validated for production use. 
+See VALIDATION_STATUS.md for details.
 ```
 
 ### LinkedIn
