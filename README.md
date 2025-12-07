@@ -1,12 +1,28 @@
-# PV-Signal-ML: Regulatory-Grade Pharmacovigilance Digital Twin
+# PV-Signal-ML: Pharmacovigilance Signal Detection Research Prototype
 
-**A production-ready prototype of an enterprise pharmacovigilance signal detection system.**
+**Research implementation demonstrating signal detection algorithms, ML-based triage, and regulatory compliance concepts for educational and portfolio purposes.**
 
 ---
 
-## 📋 What Is This?
+## ⚠️ IMPORTANT REGULATORY DISCLAIMER
 
-`pv-signal-ml` is a **digital twin** of an enterprise pharmacovigilance (PV) system used by pharmaceutical companies and regulators to detect adverse event signals in spontaneous report databases (like FAERS).
+**This is a research/proof-of-concept project, NOT a validated production system.**
+
+- ❌ **NOT FDA 21 CFR Part 11 validated** - This system has not undergone formal validation per GAMP5 guidelines
+- ❌ **NOT for use with real patient data** - Designed for demonstration with aggregated FAERS data only
+- ❌ **NOT a substitute for enterprise PV systems** - SAS, Snowflake, and commercial PV platforms have formal validation
+- ✅ **Educational value** - Demonstrates how enterprise PV systems work algorithmically
+- ✅ **Portfolio project** - Shows understanding of signal detection, ML, and regulatory concepts
+
+**For production use with real patient data, use validated commercial systems or implement formal GAMP5 validation.**
+
+---
+
+## 🎯 What Is This?
+
+`pv-signal-ml` is a **research prototype** that demonstrates how enterprise pharmacovigilance (PV) systems work. It implements signal detection algorithms, ML-based triage, and regulatory compliance concepts using open-source tools.
+
+**Status:** 🔬 **RESEARCH PROTOTYPE** (Not production-validated)
 
 ### Key Capabilities
 
@@ -19,7 +35,13 @@
 
 ### Why This Matters
 
-Pharmacovigilance is a **regulatory requirement** (EMA, FDA, CIOMS). This project demonstrates that enterprise-grade signal detection can be implemented **locally, without SaaS subscriptions**, while maintaining regulatory compliance.
+Pharmacovigilance is a **regulatory requirement** (EMA, FDA, CIOMS). This project demonstrates:
+- How enterprise-grade signal detection algorithms work
+- How ML can be integrated into PV workflows
+- How regulatory concepts (audit trails, data lineage) are implemented
+- That sophisticated PV systems can be built with open-source tools
+
+**This is NOT a replacement for validated commercial PV systems.** It's an educational tool to understand the architecture and algorithms behind enterprise systems.
 
 ---
 
