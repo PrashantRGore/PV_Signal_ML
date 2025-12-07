@@ -269,7 +269,7 @@ print(f"Generated {bundle['total']} SARs")
 - **GDPR Right to be Forgotten:** ✅ Implemented via `gdpr_deletion_registry.py`
 - **HIPAA:** De-identified data ✅; access logging ✅ and encryption at rest planned
 - **FDA 21 CFR Part 11:** Audit trail ✅; electronic signatures and RBAC planned
-- **Neo4j Graph:** Currently using LangChain RAG; Neo4j integration planned for Q2 2025
+- **Neo4j Graph:** Currently using LangChain RAG; Neo4j integration planned for Q2 2026
 
 ### 🔄 Upgrade Path
 
@@ -409,26 +409,6 @@ python audit_logging.py
 - **Chi-Square Test:** Pearson K. On the criterion that a given system of deviations from the probable in the case of a correlated system of variables is such that it can be reasonably supposed to have arisen from random sampling. Philos Mag. 1900.
 - **XGBoost:** Chen T, Guestrin C. XGBoost: A Scalable Tree Boosting System. KDD 2016.
 - **SHAP:** Lundberg SM, Lee SI. A Unified Approach to Interpreting Model Predictions. NeurIPS 2017.
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -am 'Add feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Open a pull request
-
-**Code Style:** Follow PEP 8. Use type hints where possible.
-
----
-
-## 📝 License
-
-MIT License (or your preferred license)
 
 ---
 
