@@ -1,0 +1,15 @@
+﻿# At the top of the file, add import:
+from src.utils.regulatory_tracker import regulatory_tracker
+
+# In generate_sar() method, after sar_result is created, add:
+try:
+    mlflow_run_id = regulatory_tracker.log_sar_generation(
+        signal_data=signal_data,
+        sar_result=sar_result,
+        llm_model=self.model_name,
+        generation_params={'temperature': 0.7, 'num_predict': 1500}
+    )
+    if mlflow_run_id:
+        sar_result['mlflow_run_id'] = mlflow_run_id
+except Exception as e:
+    print(f'MLflow SAR logging error: {e}')

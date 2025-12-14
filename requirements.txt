@@ -52,3 +52,22 @@ pytest-cov>=4.1.0
 black>=23.10.0
 flake8>=6.1.0
 mypy>=1.6.0
+# Existing dependencies (keep all your current packages)
+
+# === NEW DEPENDENCIES FOR ENHANCED SYSTEM ===
+# Data sources
+huggingface-hub>=0.20.0
+datasets>=2.16.0
+
+# SHAP explainability
+shap>=0.44.0
+
+# Differential privacy (optional)
+diffprivlib>=0.6.0
+
+# MLflow for tracking
+mlflow>=2.9.0
+
+# Additional utilities
+requests>=2.31.0
+python-dateutil>=2.8.2

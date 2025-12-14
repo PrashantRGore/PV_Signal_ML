@@ -1,0 +1,19 @@
+﻿# QUICK START GUIDE
+===================
+
+1. Review PROJECT_STATE.md for complete system overview
+2. Copy HANDOFF_PROMPT.txt into new conversation thread
+3. Reference this directory for current code versions
+
+Critical Files:
+- app_enhanced.py: Main application (WORKING)
+- sisa_trainer.py: ML module (STABLE - DO NOT MODIFY)
+- hf_loader.py: Data loading (FUNCTIONAL)
+
+To Resume Work:
+1. cd C:\Users\koreo\PV_Signal_ML
+2. .\venv\Scripts\activate
+3. streamlit run app_enhanced.py
+
+Current Status: ✅ FULLY FUNCTIONAL
+Next Steps: See PROJECT_STATE.md Section 10

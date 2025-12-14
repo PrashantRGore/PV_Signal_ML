@@ -1,31 +1,6 @@
-# Experimental files (iterations and prototypes)
-Experimental/
-
-# Large data files and directories
-data/
-mlruns/
-mlflow.db
-*.db
-faers_raw/
-faers_raw_exploration/
-rag_embeds/
-chroma_db_pv/
-sar_reports/
-results/
-lineage/
-bundles/
-schemas/
-gdpr_registry/
-audit_logs/
-.ipynb_checkpoints/
-
-# Data files
-*.txt
-*.csv
-*.pkl
-*.npy
-*.json
-*.faiss
+﻿# ============================================
+# PV_Signal_ML - Production .gitignore
+# ============================================
 
 # Python
 __pycache__/
@@ -35,7 +10,7 @@ __pycache__/
 .Python
 env/
 venv/
-.venv
+ENV/
 build/
 develop-eggs/
 dist/
@@ -51,15 +26,96 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# IDE
+# Virtual Environments
+venv/
+ENV/
+env/
+.venv
+
+# MLflow & Experiment Tracking
+mlruns/
+mlartifacts/
+mlruns.db
+outputs/
+
+# MLflow Artifacts (keep structure, ignore data)
+artifacts/
+models/sisa/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
-*.ps1
+*~
 
 # OS
 .DS_Store
 Thumbs.db
+Desktop.ini
+
+# Logs
 *.log
+logs/
+
+# Data Files (large datasets)
+data/raw/*.parquet
+data/raw/*.csv
+data/processed/*.parquet
+data/faers/*.txt
+data/faers/*.zip
+
+# Keep data structure but ignore content
+data/raw/.gitkeep
+data/processed/.gitkeep
+data/faers/.gitkeep
+
+# Archive folder (experimental files)
+_archive/
+
+# Backup files
+*_backup_*.py
+*_before_*.py
+*.bak
+
+# Environment files (may contain secrets)
+.env
+.env.local
+secrets.toml
+
+# Streamlit cache
+.streamlit/
+
+# Test outputs
+test_outputs/
+temp/
+tmp/
+
+# Documentation build
+docs/_build/
+docs/.doctrees/
+
+# Coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+
+# Certificates and keys
+*.pem
+*.key
+*.crt
+
+# Database files
+*.db
+*.sqlite3
