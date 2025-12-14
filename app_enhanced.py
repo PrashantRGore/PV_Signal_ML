@@ -205,7 +205,7 @@ if st.session_state.data_loaded:
                 filtered[['drug_name', 'event_term', 'case_count', 'prr', 'chi2'] +
                         (['causality_score', 'causality_level'] if 'causality_score' in filtered.columns else []) +
                         ['is_signal_prr']],
-                use_container_width=True
+                width="stretch"
             )
             
             # Download button
@@ -319,7 +319,7 @@ if st.session_state.data_loaded:
                         # Display top features
                         st.subheader("Top Features")
                         top_features = pd.DataFrame(summary['top_features'])
-                        st.dataframe(top_features, use_container_width=True)
+                        st.dataframe(top_features, width="stretch")
                         
                         st.info(f"Analysis based on {summary['n_samples_used']} samples")
                         
@@ -479,11 +479,11 @@ if st.session_state.data_loaded:
                         data=full_report,
                         file_name=report_filename,
                         mime="text/plain",
-                        use_container_width=True
+                        width="stretch"
                     )
                 
                 with col2:
-                    if st.button("🗑️ Clear", use_container_width=True):
+                    if st.button("🗑️ Clear", width="stretch"):
                         st.session_state.current_sar = None
                         st.session_state.current_signal_data = None
                         st.session_state.current_model_choice = None
@@ -510,7 +510,7 @@ if st.session_state.data_loaded:
                     'ID': exp.experiment_id,
                     'Artifact Location': exp.artifact_location
                 } for exp in experiments])
-                st.dataframe(exp_df, use_container_width=True)
+                st.dataframe(exp_df, width="stretch")
                 
                 # Select experiment
                 exp_names = [exp.name for exp in experiments]
@@ -525,7 +525,7 @@ if st.session_state.data_loaded:
                     
                     # Display runs
                     display_cols = ['run_id', 'start_time', 'status'] + [col for col in runs.columns if col.startswith('metrics.') or col.startswith('params.')]
-                    st.dataframe(runs[display_cols], use_container_width=True)
+                    st.dataframe(runs[display_cols], width="stretch")
                     
                     # Run details
                     if len(runs) > 0:
@@ -611,3 +611,4 @@ try:
     st.sidebar.markdown(f"**Ollama Model:** {sar_gen.model_name}")
 except:
     pass
+
