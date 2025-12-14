@@ -1,4 +1,4 @@
-# PV-Signal-ML Requirements
+﻿# PV-Signal-ML Requirements
 # Pharmacovigilance Signal Detection System
 # Compatible with Python 3.9+
 
@@ -25,10 +25,7 @@ uvicorn>=0.24.0
 pydantic>=2.4.0
 
 # RAG & LLM
-langchain>=0.1.0
-langchain-community>=0.0.6
 sentence-transformers>=2.2.0
-chromadb>=0.4.0
 ollama>=0.1.0
 
 # Data Retrieval

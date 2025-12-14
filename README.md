@@ -1,34 +1,34 @@
-# PV-Signal-ML: Pharmacovigilance Signal Detection Research Prototype
+﻿# PV-Signal-ML: Pharmacovigilance Signal Detection Research Prototype
 
 **Research implementation demonstrating signal detection algorithms, ML-based triage, and regulatory compliance concepts for educational and portfolio purposes.**
 
 ---
 
-## ⚠️ IMPORTANT REGULATORY DISCLAIMER
+## âš ï¸ IMPORTANT REGULATORY DISCLAIMER
 
 **This is a research/proof-of-concept project, NOT a validated production system.**
 
-- ❌ **NOT FDA 21 CFR Part 11 validated** - This system has not undergone formal validation per GAMP5 guidelines
-- ❌ **NOT for use with real patient data** - Designed for demonstration with aggregated FAERS data only
-- ❌ **NOT a substitute for enterprise PV systems** - SAS, Snowflake, and commercial PV platforms have formal validation
-- ✅ **Educational value** - Demonstrates how enterprise PV systems work algorithmically
-- ✅ **Portfolio project** - Shows understanding of signal detection, ML, and regulatory concepts
+- âŒ **NOT FDA 21 CFR Part 11 validated** - This system has not undergone formal validation per GAMP5 guidelines
+- âŒ **NOT for use with real patient data** - Designed for demonstration with aggregated FAERS data only
+- âŒ **NOT a substitute for enterprise PV systems** - SAS, Snowflake, and commercial PV platforms have formal validation
+- âœ… **Educational value** - Demonstrates how enterprise PV systems work algorithmically
+- âœ… **Portfolio project** - Shows understanding of signal detection, ML, and regulatory concepts
 
 **For production use with real patient data, use validated commercial systems or implement formal GAMP5 validation.**
 
 ---
 
-## 🎯 What Is This?
+## ðŸŽ¯ What Is This?
 
 `pv-signal-ml` is a **research prototype** that demonstrates how enterprise pharmacovigilance (PV) systems work. It implements signal detection algorithms, ML-based triage, and regulatory compliance concepts using open-source tools.
 
-**Status:** 🔬 **RESEARCH PROTOTYPE** (Not production-validated)
+**Status:** ðŸ”¬ **RESEARCH PROTOTYPE** (Not production-validated)
 
 ### Key Capabilities
 
 - **Signal Detection:** Computes disproportionality statistics (PRR, Chi-square) on aggregated adverse event data
 - **ML-Based Triage:** Ranks signals using XGBoost with SHAP explainability
-- **RAG-Powered Explanations:** Generates Signal Assessment Reports (SARs) using LangChain + Ollama
+- **RAG-Powered Explanations:** Generates Signal Assessment Reports (SARs) using Ollama API directly
 - **Live FAERS Integration:** Ingests real FDA FAERS data and computes period-specific signals
 - **Regulatory Reports:** Produces EMA-compliant SARs and PSMFs (Periodic Safety Update Format)
 - **Data Governance:** Tracks data lineage, implements GDPR controls, and maintains audit trails
@@ -45,14 +45,14 @@ Pharmacovigilance is a **regulatory requirement** (EMA, FDA, CIOMS). This projec
 
 ---
 
-## 🏗️ Enterprise Mapping: Your Implementation vs. Industry Standards
+## ðŸ—ï¸ Enterprise Mapping: Your Implementation vs. Industry Standards
 
 | Layer | Enterprise Standard | Your Implementation | Why This Works |
 |---|---|---|---|
 | **Data Lake** | Snowflake / Databricks | SQLite (in-memory) + CSV + Parquet | SQLite is ACID-compliant; schema validation identical to cloud. Scalability is a deployment choice, not a logic change. |
 | **Statistics** | SAS / R (PRR, Chi-square) | Python (pandas + numpy) | Exact same mathematical formulas. SAS/R are tools; the logic is universal. |
 | **ML Engine** | AWS SageMaker / Vertex AI | Local XGBoost + MLflow | XGBoost algorithm is identical regardless of deployment. MLflow tracking is equivalent to SageMaker Model Registry. |
-| **Context (RAG)** | Neo4j GraphRAG | LangChain + ChromaDB + Ollama | Functional RAG without graph DB. Neo4j would enhance relationship discovery but isn't essential for MVP. |
+| **Context (RAG)** | Neo4j GraphRAG | Ollama API (Direct) | Functional RAG without graph DB. Neo4j would enhance relationship discovery but isn't essential for MVP. |
 | **UI** | React/Angular + 21 CFR Part 11 | Streamlit + FastAPI | Streamlit is audit-friendly. Production UI is a layer on top; core logic is proven. |
 | **Compliance** | EMA GVP Module IX, CIOMS XIV, FDA 21 CFR Part 11, GDPR | Data lineage, DPIA, MLflow tracking, governance docs | All regulatory requirements are documented and implemented. |
 
@@ -60,46 +60,46 @@ Pharmacovigilance is a **regulatory requirement** (EMA, FDA, CIOMS). This projec
 
 ---
 
-## 🛠️ Tech Stack & Justification
+## ðŸ› ï¸ Tech Stack & Justification
 
 ### Data Layer
 
 **SQLite + CSV + Parquet**
-- ✅ **Why:** Fully ACID-compliant SQL engine; no cloud dependency; perfect for prototyping
-- ✅ **Regulatory:** Aggregated data only (no PII); schema is auditable
-- 🔄 **Upgrade Path:** Migrate to Snowflake/Databricks without changing logic
+- âœ… **Why:** Fully ACID-compliant SQL engine; no cloud dependency; perfect for prototyping
+- âœ… **Regulatory:** Aggregated data only (no PII); schema is auditable
+- ðŸ”„ **Upgrade Path:** Migrate to Snowflake/Databricks without changing logic
 
 ### Statistics Engine
 
 **Python (pandas + numpy)**
-- ✅ **Why:** Industry-validated scipy.stats library; produces identical results to SAS
-- ✅ **Regulatory:** Exact PRR/Chi-square formulas per EMA GVP Module IX
-- 🔄 **Upgrade Path:** Swap pandas for PySpark for distributed computing
+- âœ… **Why:** Industry-validated scipy.stats library; produces identical results to SAS
+- âœ… **Regulatory:** Exact PRR/Chi-square formulas per EMA GVP Module IX
+- ðŸ”„ **Upgrade Path:** Swap pandas for PySpark for distributed computing
 
 ### ML Engine
 
 **XGBoost + Scikit-Learn + MLflow**
-- ✅ **Why:** XGBoost is the gold standard for signal triage; MLflow provides audit trail
-- ✅ **Regulatory:** Model parameters, metrics, and artifacts are fully tracked
-- 🔄 **Upgrade Path:** Deploy to SageMaker or Vertex AI without code changes
+- âœ… **Why:** XGBoost is the gold standard for signal triage; MLflow provides audit trail
+- âœ… **Regulatory:** Model parameters, metrics, and artifacts are fully tracked
+- ðŸ”„ **Upgrade Path:** Deploy to SageMaker or Vertex AI without code changes
 
 ### Context (RAG)
 
-**LangChain + ChromaDB + Ollama (Llama3.2)**
-- ✅ **Why:** Local LLM avoids cloud dependency; ChromaDB is lightweight; LangChain is industry-standard
-- ✅ **Regulatory:** Deterministic prompts (temperature=0.1) for reproducible SARs
-- 🔄 **Upgrade Path:** Swap Ollama for GPT-4 API or fine-tune on CIOMS XIV guidance
+**Ollama API (Direct)**
+- âœ… **Why:** Local LLM avoids cloud dependency; ChromaDB is lightweight; LangChain is industry-standard
+- âœ… **Regulatory:** Deterministic prompts (temperature=0.1) for reproducible SARs
+- ðŸ”„ **Upgrade Path:** Swap Ollama for GPT-4 API or fine-tune on CIOMS XIV guidance
 
 ### UI & API
 
 **Streamlit + FastAPI**
-- ✅ **Why:** Streamlit is audit-friendly (no JavaScript complexity); FastAPI is fast and well-documented
-- ✅ **Regulatory:** All interactions are logged; reports are downloadable
-- 🔄 **Upgrade Path:** Replace Streamlit with React + add authentication for production
+- âœ… **Why:** Streamlit is audit-friendly (no JavaScript complexity); FastAPI is fast and well-documented
+- âœ… **Regulatory:** All interactions are logged; reports are downloadable
+- ðŸ”„ **Upgrade Path:** Replace Streamlit with React + add authentication for production
 
 ---
 
-## 🚀 Quick Start
+## ðŸš€ Quick Start
 
 ### Prerequisites
 
@@ -175,87 +175,87 @@ python generate_psmf.py
 **Batch Generate SARs with LangChain:**
 
 ```python
-from rag_langchain import PVSignalRAGLangChain
+from src.rag.sar_generator import SARGenerator
 
-rag = PVSignalRAGLangChain()
+sar_gen = SARGenerator()
 bundle = rag.batch_generate_sars(top_n=20)
 print(f"Generated {bundle['total']} SARs")
 ```
 
 ---
 
-## 📊 System Architecture
+## ðŸ“Š System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        FAERS (FDA)                                          │
-│                   Live Quarterly Data                                       │
-└─────────────────────────────────────┬─────────────────────────────────────┘
-                                      │
-                                      ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                  FAERS Ingestion Module                                      │
-│           (faers_build_signals.py)                                          │
-│  - Download quarterly ZIPs                                                  │
-│  - Parse DRUG, REAC, DEMO tables                                            │
-│  - Filter by report date                                                    │
-└─────────────────────────────────────┬─────────────────────────────────────┘
-                                      │
-                                      ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                  Statistics Engine                                          │
-│           (stats_engine.py)                                                 │
-│  - Compute PRR (Proportional Reporting Ratio)                               │
-│  - Compute Chi-square statistic                                             │
-│  - Apply thresholds (PRR≥2, Chi²≥4, Cases≥3)                               │
-│  - Output: candidate_signals.csv                                            │
-└─────────────────────────────────────┬─────────────────────────────────────┘
-                                      │
-                                      ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                  ML Triage Module                                           │
-│           (pv_signal_ml_pipeline.py)                                        │
-│  - Train XGBoost on historical signals                                      │
-│  - Rank candidates by ML score                                              │
-│  - SHAP explainability                                                      │
-│  - MLflow tracking                                                          │
-└─────────────────────────────────────┬─────────────────────────────────────┘
-                                      │
-                                      ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                  RAG Pipeline                                               │
-│           (rag_langchain.py)                                                │
-│  - Retrieve related signals (embeddings)                                    │
-│  - Fetch PubMed literature                                                  │
-│  - Generate SAR with LLM (Ollama)                                           │
-│  - Output: SAR JSON + Markdown                                              │
-└─────────────────────────────────────┬─────────────────────────────────────┘
-                                      │
-                                      ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                  Report Generation                                          │
-│           (signal_report_builder.py)                                        │
-│  - EMA-compliant SAR format                                                 │
-│  - PSMF (Periodic Safety Update)                                            │
-│  - Downloadable JSON + Markdown                                             │
-└─────────────────────────────────────┬─────────────────────────────────────┘
-                                      │
-                                      ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                  User Interface                                             │
-│           (pv_fullstack.py / pv_ui.py)                                      │
-│  - Streamlit dashboard                                                      │
-│  - Signal browsing and filtering                                            │
-│  - Report generation UI                                                     │
-│  - Audit trail and compliance view                                          │
-└─────────────────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                        FAERS (FDA)                                          â”‚
+â”‚                   Live Quarterly Data                                       â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                      â”‚
+                                      â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                  FAERS Ingestion Module                                      â”‚
+â”‚           (faers_build_signals.py)                                          â”‚
+â”‚  - Download quarterly ZIPs                                                  â”‚
+â”‚  - Parse DRUG, REAC, DEMO tables                                            â”‚
+â”‚  - Filter by report date                                                    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                      â”‚
+                                      â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                  Statistics Engine                                          â”‚
+â”‚           (stats_engine.py)                                                 â”‚
+â”‚  - Compute PRR (Proportional Reporting Ratio)                               â”‚
+â”‚  - Compute Chi-square statistic                                             â”‚
+â”‚  - Apply thresholds (PRRâ‰¥2, ChiÂ²â‰¥4, Casesâ‰¥3)                               â”‚
+â”‚  - Output: candidate_signals.csv                                            â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                      â”‚
+                                      â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                  ML Triage Module                                           â”‚
+â”‚           (pv_signal_ml_pipeline.py)                                        â”‚
+â”‚  - Train XGBoost on historical signals                                      â”‚
+â”‚  - Rank candidates by ML score                                              â”‚
+â”‚  - SHAP explainability                                                      â”‚
+â”‚  - MLflow tracking                                                          â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                      â”‚
+                                      â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                  RAG Pipeline                                               â”‚
+â”‚           (sar_generator.py)                                                â”‚
+â”‚  - Retrieve related signals (embeddings)                                    â”‚
+â”‚  - Fetch PubMed literature                                                  â”‚
+â”‚  - Generate SAR with LLM (Ollama)                                           â”‚
+â”‚  - Output: SAR JSON + Markdown                                              â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                      â”‚
+                                      â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                  Report Generation                                          â”‚
+â”‚           (signal_report_builder.py)                                        â”‚
+â”‚  - EMA-compliant SAR format                                                 â”‚
+â”‚  - PSMF (Periodic Safety Update)                                            â”‚
+â”‚  - Downloadable JSON + Markdown                                             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                      â”‚
+                                      â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                  User Interface                                             â”‚
+â”‚           (pv_fullstack.py / pv_ui.py)                                      â”‚
+â”‚  - Streamlit dashboard                                                      â”‚
+â”‚  - Signal browsing and filtering                                            â”‚
+â”‚  - Report generation UI                                                     â”‚
+â”‚  - Audit trail and compliance view                                          â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
 
-## ✅ Compliance Status
+## âœ… Compliance Status
 
-### ✅ Implemented
+### âœ… Implemented
 
 - **GDPR (EU):** Data minimization (aggregated only), legal basis documented, retention policy defined, right to be forgotten (GDPR deletion registry)
 - **CIOMS XIV:** Signal detection methodology, periodic safety updates, causality assessment (in template)
@@ -264,98 +264,98 @@ print(f"Generated {bundle['total']} SARs")
 - **Audit Trail:** MLflow run tracking, data lineage JSONs, governance documentation, access logging
 - **Privacy:** No PII in any output; aggregated counts only
 
-### ⚠️ Partial / Planned
+### âš ï¸ Partial / Planned
 
-- **GDPR Right to be Forgotten:** ✅ Implemented via `gdpr_deletion_registry.py`
-- **HIPAA:** De-identified data ✅; access logging ✅ and encryption at rest planned
-- **FDA 21 CFR Part 11:** Audit trail ✅; electronic signatures and RBAC planned
-- **Neo4j Graph:** Currently using LangChain RAG; Neo4j integration planned for Q2 2026
+- **GDPR Right to be Forgotten:** âœ… Implemented via `gdpr_deletion_registry.py`
+- **HIPAA:** De-identified data âœ…; access logging âœ… and encryption at rest planned
+- **FDA 21 CFR Part 11:** Audit trail âœ…; electronic signatures and RBAC planned
+- **Neo4j Graph:** Currently using Direct Ollama API; Neo4j integration planned for Q2 2026
 
-### 🔄 Upgrade Path
+### ðŸ”„ Upgrade Path
 
 All planned features can be layered on top without breaking existing code:
 
 ```
-Current State (MVP)  →  Phase 1 (GDPR)  →  Phase 2 (HIPAA)  →  Phase 3 (Enterprise)
+Current State (MVP)  â†’  Phase 1 (GDPR)  â†’  Phase 2 (HIPAA)  â†’  Phase 3 (Enterprise)
 ```
 
 ---
 
-## 📁 Project Structure
+## ðŸ“ Project Structure
 
 ```
 pv-signal-ml/
-├── pv_fullstack.py              # Main Streamlit app (recommended entry point)
-├── pv_ui.py                     # Alternative UI
-├── api.py                       # FastAPI service
-│
-├── faers_build_signals.py       # FAERS ingestion & signal computation
-├── stats_engine.py              # PRR/Chi-square calculation
-├── prepare_ml_features.py       # Feature engineering
-│
-├── pv_signal_ml_pipeline.py     # XGBoost training + MLflow
-├── shap_analysis_simple.py      # SHAP explainability
-│
-├── rag_langchain.py             # LangChain RAG pipeline
-├── rag_signal_evidence.py       # Evidence retrieval (embeddings + PubMed)
-├── signal_report_builder.py     # SAR/PSMF generation
-│
-├── data_lineage.py              # Data provenance tracking
-├── gdpr_deletion_registry.py    # GDPR right to be forgotten
-├── audit_logging.py             # Access logging & audit trail
-├── governance_dpia.md           # GDPR/DPIA documentation
-├── change_control.py            # Predetermined change control plan
-│
-├── templates/
-│   └── signal_report_template.md # EMA-compliant SAR template
-│
-├── sar_reports/                 # Generated reports
-│   ├── candidate_signals_*.csv
-│   ├── enriched_signals_*.csv
-│   └── reports/                 # SAR JSON + Markdown files
-│
-├── ml_data/                     # ML training features
-├── lineage/                     # Data lineage JSONs
-├── chroma_db_pv/                # ChromaDB vector store
-├── rag_embeds/                  # Signal embeddings
-├── audit_logs/                  # Audit trail logs
-├── gdpr_registry/               # GDPR deletion records
-│
-├── Experimental/                # Experimental / iteration files
-│   ├── pv_ui_complete.py
-│   ├── pv_ui_complete_enhanced.py
-│   ├── rag_langchain_fixed.py
-│   └── ...
-│
-├── requirements.txt             # Python dependencies
-├── README.md                    # This file
-└── ANALYSIS_AND_COMPLIANCE_REPORT.md  # Detailed compliance analysis
+â”œâ”€â”€ pv_fullstack.py              # Main Streamlit app (recommended entry point)
+â”œâ”€â”€ pv_ui.py                     # Alternative UI
+â”œâ”€â”€ api.py                       # FastAPI service
+â”‚
+â”œâ”€â”€ faers_build_signals.py       # FAERS ingestion & signal computation
+â”œâ”€â”€ stats_engine.py              # PRR/Chi-square calculation
+â”œâ”€â”€ prepare_ml_features.py       # Feature engineering
+â”‚
+â”œâ”€â”€ pv_signal_ml_pipeline.py     # XGBoost training + MLflow
+â”œâ”€â”€ shap_analysis_simple.py      # SHAP explainability
+â”‚
+â”œâ”€â”€ sar_generator.py             # Direct Ollama API pipeline
+â”œâ”€â”€ rag_signal_evidence.py       # Evidence retrieval (embeddings + PubMed)
+â”œâ”€â”€ signal_report_builder.py     # SAR/PSMF generation
+â”‚
+â”œâ”€â”€ data_lineage.py              # Data provenance tracking
+â”œâ”€â”€ gdpr_deletion_registry.py    # GDPR right to be forgotten
+â”œâ”€â”€ audit_logging.py             # Access logging & audit trail
+â”œâ”€â”€ governance_dpia.md           # GDPR/DPIA documentation
+â”œâ”€â”€ change_control.py            # Predetermined change control plan
+â”‚
+â”œâ”€â”€ templates/
+â”‚   â””â”€â”€ signal_report_template.md # EMA-compliant SAR template
+â”‚
+â”œâ”€â”€ sar_reports/                 # Generated reports
+â”‚   â”œâ”€â”€ candidate_signals_*.csv
+â”‚   â”œâ”€â”€ enriched_signals_*.csv
+â”‚   â””â”€â”€ reports/                 # SAR JSON + Markdown files
+â”‚
+â”œâ”€â”€ ml_data/                     # ML training features
+â”œâ”€â”€ lineage/                     # Data lineage JSONs
+â”œâ”€â”€ chroma_db_pv/                # ChromaDB vector store
+â”œâ”€â”€ rag_embeds/                  # Signal embeddings
+â”œâ”€â”€ audit_logs/                  # Audit trail logs
+â”œâ”€â”€ gdpr_registry/               # GDPR deletion records
+â”‚
+â”œâ”€â”€ Experimental/                # Experimental / iteration files
+â”‚   â”œâ”€â”€ pv_ui_complete.py
+â”‚   â”œâ”€â”€ pv_ui_complete_enhanced.py
+â”‚   â”œâ”€â”€ rag_langchain_fixed.py
+â”‚   â””â”€â”€ ...
+â”‚
+â”œâ”€â”€ requirements.txt             # Python dependencies
+â”œâ”€â”€ README.md                    # This file
+â””â”€â”€ ANALYSIS_AND_COMPLIANCE_REPORT.md  # Detailed compliance analysis
 ```
 
 ---
 
-## 🔐 Security & Privacy
+## ðŸ” Security & Privacy
 
 ### Data Protection
 
-- ✅ **Aggregated Only:** No individual case data in any output
-- ✅ **No PII:** No names, MRNs, SSNs, or direct identifiers
-- ✅ **FAERS Public:** Uses only publicly available FDA data
-- ✅ **GDPR Compliant:** Right to be forgotten implemented via deletion registry
-- ⚠️ **Encryption at Rest:** SQLite is unencrypted (planned: SQLCipher)
-- ⚠️ **Access Control:** No RBAC (planned: authentication layer)
+- âœ… **Aggregated Only:** No individual case data in any output
+- âœ… **No PII:** No names, MRNs, SSNs, or direct identifiers
+- âœ… **FAERS Public:** Uses only publicly available FDA data
+- âœ… **GDPR Compliant:** Right to be forgotten implemented via deletion registry
+- âš ï¸ **Encryption at Rest:** SQLite is unencrypted (planned: SQLCipher)
+- âš ï¸ **Access Control:** No RBAC (planned: authentication layer)
 
 ### Audit Trail
 
-- ✅ **MLflow Tracking:** All model runs logged with parameters, metrics, artifacts
-- ✅ **Data Lineage:** Source, extraction date, transformation script, checksums
-- ✅ **Governance Docs:** DPIA, retention policy, legal basis
-- ✅ **Access Logging:** API calls and report generation tracked
-- ⚠️ **User Action Logging:** Per-user action logs available via `audit_logging.py`
+- âœ… **MLflow Tracking:** All model runs logged with parameters, metrics, artifacts
+- âœ… **Data Lineage:** Source, extraction date, transformation script, checksums
+- âœ… **Governance Docs:** DPIA, retention policy, legal basis
+- âœ… **Access Logging:** API calls and report generation tracked
+- âš ï¸ **User Action Logging:** Per-user action logs available via `audit_logging.py`
 
 ---
 
-## 🧪 Testing & Validation
+## ðŸ§ª Testing & Validation
 
 ### Unit Tests
 
@@ -370,13 +370,13 @@ python -m pytest tests/  # (to be added)
 python faers_build_signals.py 2024-01-01 2024-03-31
 
 # Test signal computation
-python -c "from stats_engine import add_signal_flags_from_existing_stats; print('✅ Stats engine OK')"
+python -c "from stats_engine import add_signal_flags_from_existing_stats; print('âœ… Stats engine OK')"
 
 # Test ML pipeline
 python pv_signal_ml_pipeline.py
 
 # Test RAG
-python -c "from rag_langchain import PVSignalRAGLangChain; rag = PVSignalRAGLangChain(); print('✅ RAG OK')"
+python -c "from src.rag.sar_generator import SARGenerator; sar_gen = SARGenerator(); print('âœ… RAG OK')"
 
 # Test GDPR deletion registry
 python gdpr_deletion_registry.py
@@ -387,14 +387,14 @@ python audit_logging.py
 
 ### Regulatory Validation
 
-- ✅ **PRR Formula:** Verified against EMA GVP Module IX
-- ✅ **Chi-Square:** Verified against scipy.stats.chi2_contingency
-- ✅ **Thresholds:** Aligned with CIOMS XIV recommendations
-- ✅ **SAR Template:** Follows EMA signal assessment format
+- âœ… **PRR Formula:** Verified against EMA GVP Module IX
+- âœ… **Chi-Square:** Verified against scipy.stats.chi2_contingency
+- âœ… **Thresholds:** Aligned with CIOMS XIV recommendations
+- âœ… **SAR Template:** Follows EMA signal assessment format
 
 ---
 
-## 📚 References & Standards
+## ðŸ“š References & Standards
 
 ### Regulatory Guidance
 
@@ -412,22 +412,22 @@ python audit_logging.py
 
 ---
 
-## 🗺️ Roadmap
+## ðŸ—ºï¸ Roadmap
 
-### Phase 1: MVP (Current) ✅
-- ✅ FAERS ingestion
-- ✅ Stats engine (PRR/Chi-square)
-- ✅ ML triage (XGBoost)
-- ✅ RAG-based SAR generation
-- ✅ Streamlit UI
-- ✅ Data lineage & governance
-- ✅ GDPR deletion registry
-- ✅ Audit logging
+### Phase 1: MVP (Current) âœ…
+- âœ… FAERS ingestion
+- âœ… Stats engine (PRR/Chi-square)
+- âœ… ML triage (XGBoost)
+- âœ… RAG-based SAR generation
+- âœ… Streamlit UI
+- âœ… Data lineage & governance
+- âœ… GDPR deletion registry
+- âœ… Audit logging
 
 ### Phase 2: GDPR & Compliance (Q4 2025 / Q1 2026)
-- ✅ Right to be forgotten (deletion registry)
-- ✅ ICSR pseudonymization
-- ✅ Access logging
+- âœ… Right to be forgotten (deletion registry)
+- âœ… ICSR pseudonymization
+- âœ… Access logging
 - [ ] Electronic signatures
 - [ ] PSMF full EMA 1.7.1 format
 
@@ -447,7 +447,7 @@ python audit_logging.py
 
 ---
 
-## 💬 Support
+## ðŸ’¬ Support
 
 For questions or issues:
 
@@ -457,7 +457,7 @@ For questions or issues:
 
 ---
 
-## 🎓 Learn More
+## ðŸŽ“ Learn More
 
 - **Pharmacovigilance Basics:** https://www.ema.europa.eu/en/human-regulatory/post-authorisation/pharmacovigilance
 - **FAERS Database:** https://fis.fda.gov/sense/app/9524532e-2eb4-490e-b914-0a5f8e970e2d/sheet/7a5acf3b-72d4-4b5d-99a7-4ca3e9ca74d4/state/analysis
@@ -468,4 +468,86 @@ For questions or issues:
 ---
 
 **Last Updated:** 2025-12-08  
-**Status:** 🔬 Research Prototype (MVP) with Compliance Enhancements Implemented
+**Status:** ðŸ”¬ Research Prototype (MVP) with Compliance Enhancements Implemented
+
+
+
+## 🔐 SISA Machine Unlearning Architecture
+
+### What is SISA?
+
+SISA (Sharded, Isolated, Sliced, Aggregated) is a machine unlearning framework that enables efficient data deletion for GDPR-style "right to be forgotten" without full model retraining.
+
+### High-level flow
+
+graph TB
+A[Training data
+N cases] --> B[Split into shards
+k shards]
+B --> C0[Shard 0
+XGBoost model]
+B --> C1[Shard 1
+XGBoost model]
+B --> C2[Shard 2
+XGBoost model]
+B --> C3[...]
+B --> C9[Shard k-1
+XGBoost model]
+
+C0 --> D[Ensemble prediction]
+C1 --> D
+C2 --> D
+C3 --> D
+C9 --> D
+
+E[Unlearn request<br/>case_id] --> F{Find shard<br/>containing case}
+F --> G[Retrain that shard<br/>on data minus case]
+G --> H[Replace shard model<br/>in ensemble]
+H --> D
+
+
+### Implementation in this repo
+
+| Component        | Description                                               | Location                      |
+|-----------------|-----------------------------------------------------------|-------------------------------|
+| SISA trainer    | SISATrainer class with sharding & unlearning logic        | src/ml/sisa_trainer.py        |
+| Data sharding   | Split training set into k shards                          | train(...) in sisa_trainer.py |
+| Unlearn method  | unlearn(case_id) finds shard and retrains only that shard | unlearn(...) in sisa_trainer.py |
+| Model storage   | One XGBoost model per shard (shard_i.pkl)                 | models/sisa/shard_*.pkl       |
+| UI integration  | Tab 6 "Machine Unlearning"                                | app_enhanced.py               |
+
+### SISA training example
+
+
+from src.ml.sisa_trainer import SISATrainer
+
+trainer = SISATrainer(model_dir="models/sisa")
+results = trainer.train(signals_df, n_shards=10)
+
+print(results["auc"], results["n_shards"])
+
+10 shard models are saved under models/sisa/shard_*.pkl
+
+
+### SISA unlearning example
+
+Remove the influence of a specific case from the ensemble
+result = trainer.unlearn(case_id=5432)
+print(result)
+
+Internally:
+1. Identify which shard contains case_id
+2. Reload only that shard's training data
+3. Drop the case
+4. Retrain that shard's XGBoost model
+5. Overwrite models/sisa/shard_j.pkl
+6. Ensemble now uses updated shard_j
+
+
+### Why this helps
+
+- Only the affected shard is retrained, so unlearning is much faster than full retrain.
+- Shard-level isolation gives a clear boundary for what needs to be updated.
+- Combined with MLflow tracking, unlearning operations can be audited.
+
+> Note: This is a research prototype and not validated for production/regulatory use.
