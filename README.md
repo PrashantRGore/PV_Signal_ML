@@ -166,13 +166,12 @@ graph TB
     G --> H[Replace shard model<br/>in ensemble]
     H --> D
 
-
 Implementation in this repo
 src/ml/sisa_trainer.py – SISATrainer class with train(...) and unlearn(case_id)
 
 models/sisa/shard_*.pkl – one XGBoost model per shard
 
-app_enhanced.py – Tab 2 (“ML Validation (SISA)”) and Tab 6 (“Machine Unlearning”) provide UI to train shards and submit unlearning requests
+app_enhanced.py – Tab 2 ("ML Validation (SISA)") and Tab 6 ("Machine Unlearning") provide UI to train shards and submit unlearning requests
 
 Example training usage (script or notebook):
 
@@ -182,24 +181,21 @@ trainer = SISATrainer(model_dir="models/sisa")
 results = trainer.train(signals_df, n_shards=10)
 print(results["auc"], results["n_shards"])
 
-
 Unlearning a specific case:
 
 result = trainer.unlearn(case_id=5432)
 print(result)
 
+
 This retrains only the affected shard and updates the ensemble.
 
-🧪 Testing & Validation (Prototype Level)
 Basic smoke tests via running:
 
 python faers_build_signals.py 2024-01-01 2024-03-31
-
 python pv_signal_ml_pipeline.py
-
 python gdpr_deletion_registry.py
-
 python audit_logging.py
+
 
 Optional tests (to be expanded):
 
@@ -219,4 +215,3 @@ Standard PRR / Chi-square disproportionality methods
 XGBoost and SHAP documentation for ML and explainability
 
 This repository is intended purely for research and education.
-
