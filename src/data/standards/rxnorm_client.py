@@ -1,5 +1,5 @@
 """
-RxNorm API Client - 100% BUG-FREE PRODUCTION VERSION
+RxNorm API Client - Research Prototype - Standards Normalizer
 PV Signal ML v4.0 Phase 1 - January 11, 2026
 """
 
@@ -29,7 +29,7 @@ def setup_logger(name: str = "RxNormClient"):
 logger = setup_logger()
 
 class RxNormClient:
-    """NIH RxNav RxNorm API client with SQLite caching - PRODUCTION READY"""
+    """NIH RxNav RxNorm API client with SQLite caching - Research Prototype"""
     
     BASE_URL = "https://rxnav.nlm.nih.gov/REST"
     

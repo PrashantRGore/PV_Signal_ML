@@ -1,3 +1,4 @@
+import os
 """
 MINIMAL Enhanced Literature Search - TESTED
 Only fixes PubMed search to find those 2 ibuprofen papers

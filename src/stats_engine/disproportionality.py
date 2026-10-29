@@ -159,9 +159,13 @@ class DisproportionalityAnalysis:
         # ========================================================================
         # Handle ground truth labels if available
         # ========================================================================
+        # Statistical screening candidate flag (Evans criteria: PRR >= 2, Chi2 >= 4, N >= 3)
+        df["is_evans_signal"] = (
+            (df["prr"] >= 2.0) & (df["prr"] < 999.0) & (df["chi2"] >= 4.0) & (df["case_count"] >= self.min_cases)
+        ).astype(int)
+
         if label_col and label_col in icsr_data.columns:
             logger.info(f"Using ground truth labels from '{label_col}'")
-
             # Aggregate labels (majority vote)
             label_agg = (
                 icsr_data.groupby(["drug_name", "event_term"])[label_col]
@@ -169,19 +173,15 @@ class DisproportionalityAnalysis:
                 .astype(int)
                 .reset_index()
             )
-
-            df = df.merge(
-                label_agg, on=["drug_name", "event_term"], how="left"
-            )
+            df = df.merge(label_agg, on=["drug_name", "event_term"], how="left")
             df["label"] = df[label_col].fillna(0).astype(int)
             df.drop(columns=[label_col], inplace=True)
         else:
-            # Use PRR-based heuristic (PRR >= 2.0 and Chi2 >= 4.0)
-            # EXCLUDE PRR=999 (error sentinel value)
-            df["label"] = (
-                (df["prr"] >= 2.0) & (df["prr"] < 999.0) & (df["chi2"] >= 4.0)
-            ).astype(int)
-            logger.info("Using PRR-based heuristic for labels (PRR>=2 and <999, Chi²>=4)")
+            # Do NOT create circular labels from PRR/Chi2 thresholds (prevents target leakage).
+            # Default to 0 (unconfirmed) to satisfy schema requirement.
+            # Independent ground truth should be mapped using OMOPBenchmark.
+            df["label"] = 0
+            logger.info("No external label column provided; set label=0. Apply OMOPBenchmark for independent evaluation.")
 
         # Ensure all canonical columns are present
         for col in CanonicalSchema.TIER1_REQUIRED:

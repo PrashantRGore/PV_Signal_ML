@@ -5,7 +5,10 @@ Causality Assessment: Apply ML model to rank signals
 import pandas as pd
 import pickle
 from pathlib import Path
-import streamlit as st
+try:
+    import streamlit as st
+except ImportError:
+    st = None
 from src.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -13,7 +16,7 @@ logger = setup_logger(__name__)
 class CausalityScorer:
     """
     Applies trained ML model to score signal causality
-    Integrates with SISA sharding for GDPR compliance
+    Integrates with SISA sharding research prototype for machine unlearning exploration
     """
     
     def __init__(self, model_path='models/sisa_model.pkl'):
@@ -45,7 +48,12 @@ class CausalityScorer:
         """Apply ML model to score causality probability"""
         if self.model is None:
             if not self.load_model():
-                st.warning("⚠️ ML model not available. Using statistical signals only.")
+                logger.warning("ML model not available. Using statistical signals only.")
+                if st is not None:
+                    try:
+                        st.warning("⚠️ ML model not available. Using statistical signals only.")
+                    except Exception:
+                        pass
                 signals_df['causality_score'] = 0.5
                 return signals_df
         
@@ -71,6 +79,10 @@ class CausalityScorer:
             
         except Exception as e:
             logger.error(f"Error scoring causality: {e}")
-            st.error(f"Causality scoring failed: {e}")
+            if st is not None:
+                try:
+                    st.error(f"Causality scoring failed: {e}")
+                except Exception:
+                    pass
             signals_df['causality_score'] = 0.5
             return signals_df

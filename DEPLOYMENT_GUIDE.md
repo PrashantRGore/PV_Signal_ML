@@ -9,10 +9,10 @@
 ## 📋 PROJECT SUMMARY
 
 ### What This System Does
-A **production-ready pharmacovigilance signal detection system** that:
+A **research prototype pharmacovigilance signal detection system** that:
 - ✅ Detects adverse event signals using statistical analysis (PRR, Chi-square)
 - ✅ Ranks signals using ML (XGBoost) with explainability (SHAP)
-- ✅ Generates regulatory-compliant reports using RAG (LangChain + Ollama)
+- ✅ Generates regulatory-compliant reports using RAG (Ollama Local LLM)
 - ✅ Maintains complete audit trails (FDA 21 CFR Part 11)
 - ✅ Implements GDPR compliance (right to be forgotten)
 - ✅ Integrates with FDA FAERS data
@@ -33,7 +33,7 @@ A **production-ready pharmacovigilance signal detection system** that:
 - [ ] All dependencies installed: `pip install -r requirements.txt`
 - [ ] Ollama running: `ollama serve`
 - [ ] Model pulled: `ollama pull llama3.2:3b`
-- [ ] Test Streamlit app: `streamlit run pv_fullstack.py`
+- [ ] Test Streamlit app: `streamlit run app.py`
 - [ ] Test API: `python -m uvicorn api:app --host 127.0.0.1 --port 8000`
 - [ ] Verify MLflow logging: `mlflow ui`
 - [ ] Verify audit logs created: `ls -la audit_logs/`
@@ -42,7 +42,7 @@ A **production-ready pharmacovigilance signal detection system** that:
 - [ ] Create GitHub repository: `https://github.com/PrashantRGore/pv-signal-ml`
 - [ ] Initialize git: `git init`
 - [ ] Add files: `git add -A`
-- [ ] Commit: `git commit -m "Initial commit: Production-ready PV signal detection system"`
+- [ ] Commit: `git commit -m "Initial commit: Research prototype PV signal detection system"`
 - [ ] Push: `git push -u origin main`
 - [ ] Create `.gitignore` for sensitive files
 - [ ] Create comprehensive README.md
@@ -53,7 +53,7 @@ A **production-ready pharmacovigilance signal detection system** that:
 - [ ] Create Streamlit account: https://streamlit.io/cloud
 - [ ] Connect GitHub repository
 - [ ] Configure secrets (if needed)
-- [ ] Deploy: Select `pv_fullstack.py` as main file
+- [ ] Deploy: Select `app.py` as main file
 - [ ] Test deployed app
 - [ ] Monitor logs and performance
 
@@ -71,7 +71,7 @@ pv-signal-ml/
 │   └── shap_analysis_simple.py           # Model explainability
 │
 ├── RAG & Contextualization
-│   ├── rag_langchain.py                  # LangChain + Ollama RAG
+│   ├── rag_langchain.py                  # Ollama Local LLM RAG
 │   ├── rag_signal_evidence.py            # Similar signals + PubMed
 │   ├── rag_engine.py                     # Semantic search
 │   └── rag_pv_signals.py                 # PV-specific RAG
@@ -94,7 +94,7 @@ pv-signal-ml/
 │   └── fairness_analyzer.py              # Bias detection
 │
 ├── UI & API
-│   ├── pv_fullstack.py                   # Main Streamlit app (auto-start API ✅)
+│   ├── app.py                   # Main Streamlit app (auto-start API ✅)
 │   ├── pv_ui.py                          # Alternative UI
 │   └── api.py                            # FastAPI backend (MLflow logging ✅)
 │
@@ -151,7 +151,7 @@ pv-signal-ml/
 
 ### Fix 4: Auto-Start API ✅
 **File Modified:**
-- `pv_fullstack.py` - API auto-starts when Streamlit loads
+- `app.py` - API auto-starts when Streamlit loads
 
 **Impact:**
 - ✅ No manual terminal needed
@@ -208,7 +208,7 @@ ollama serve
 ollama pull llama3.2:3b
 
 # 4. Test Streamlit app
-streamlit run pv_fullstack.py
+streamlit run app.py
 # Open http://127.0.0.1:8501
 
 # 5. Test API (in separate terminal)
@@ -230,13 +230,13 @@ cat audit_logs/audit.log
 # 1. Create repository on GitHub
 # https://github.com/new
 # Name: pv-signal-ml
-# Description: Production-ready pharmacovigilance signal detection system
+# Description: Research prototype pharmacovigilance signal detection system
 # Public repository
 
 # 2. Initialize git locally
 git init
 git add -A
-git commit -m "Initial commit: Production-ready PV signal detection system"
+git commit -m "Initial commit: Research prototype PV signal detection system"
 git branch -M main
 git remote add origin https://github.com/PrashantRGore/pv-signal-ml.git
 git push -u origin main
@@ -298,7 +298,7 @@ git push
 # 2. Click "New app"
 # 3. Select GitHub repository: PrashantRGore/pv-signal-ml
 # 4. Select branch: main
-# 5. Select file: pv_fullstack.py
+# 5. Select file: app.py
 # 6. Click "Deploy"
 
 # 7. Wait for deployment (2-3 minutes)
@@ -312,7 +312,7 @@ git push
 
 ### README.md
 ```markdown
-# PV-Signal-ML: Production-Ready Pharmacovigilance Signal Detection
+# PV-Signal-ML: Research Prototype Pharmacovigilance Signal Detection
 
 A regulatory-grade system for detecting adverse event signals using statistical 
 analysis, machine learning, and retrieval-augmented generation.
@@ -320,7 +320,7 @@ analysis, machine learning, and retrieval-augmented generation.
 ## Features
 - Signal detection (PRR, Chi-square)
 - ML-based ranking (XGBoost + SHAP)
-- RAG-powered reports (LangChain + Ollama)
+- RAG-powered reports (Ollama Local LLM)
 - Complete audit trails (FDA 21 CFR Part 11)
 - GDPR compliance (right to be forgotten)
 
@@ -328,7 +328,7 @@ analysis, machine learning, and retrieval-augmented generation.
 ```bash
 pip install -r requirements.txt
 ollama pull llama3.2:3b
-streamlit run pv_fullstack.py
+streamlit run app.py
 ```
 
 ## Documentation
@@ -422,7 +422,7 @@ python -m uvicorn api:app --host 127.0.0.1 --port 8001
 streamlit cache clear
 
 # Restart app
-streamlit run pv_fullstack.py --logger.level=debug
+streamlit run app.py --logger.level=debug
 ```
 
 ### Issue: MLflow runs not showing

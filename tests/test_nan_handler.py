@@ -25,6 +25,11 @@ def test_mice_imputer():
 
 def test_pytorch_dae_imputer():
     """Verify that PyTorch Tabular DAE trains and reconstructs corrupted tabular data."""
+    try:
+        import torch
+    except ImportError:
+        pytest.skip("PyTorch not installed in this environment; skipping PyTorch DAE test")
+
     np.random.seed(42)
     # Generate synthetic correlated clinical data
     x1 = np.random.normal(50, 10, 100)
@@ -33,6 +38,9 @@ def test_pytorch_dae_imputer():
 
     imputer = DenoisingAutoencoder(strategy="dae")
     imputer.fit(df, epochs=5)
+
+    assert imputer.strategy == "dae"
+    assert imputer.dae_net is not None
 
     # Test with injected NaNs
     test_df = df.copy()

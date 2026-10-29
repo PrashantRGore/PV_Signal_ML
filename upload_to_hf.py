@@ -21,7 +21,7 @@ except Exception as e:
 api = HfApi()
 
 # Check if repository exists, if not create it
-repo_id = "koreo/synthetic-faers-1m-v3"
+repo_id = os.getenv("HF_REPO_ID", "PrashantRGore/synthetic-faers-1m-v3")
 print(f"Step 2: Creating/checking repository: {repo_id}")
 
 try:

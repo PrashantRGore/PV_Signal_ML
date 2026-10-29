@@ -100,13 +100,12 @@ class DenoisingAutoencoder:
             self.dae_net = None
         elif self.strategy == "dae":
             if not HAS_TORCH:
-                logger.warning("PyTorch unavailable; falling back to MICE (IterativeImputer)")
-                self.strategy = "mice"
-                self.imputer = IterativeImputer(max_iter=10, random_state=random_state, initial_strategy="median")
-                self.dae_net = None
-            else:
-                self.imputer = SimpleImputer(strategy="median")
-                self.dae_net = None
+                raise ImportError(
+                    "PyTorch is required for strategy='dae'. "
+                    "Install torch or use strategy='mice' for CPU-efficient multivariate imputation."
+                )
+            self.imputer = SimpleImputer(strategy="median")
+            self.dae_net = None
         else:
             self.imputer = SimpleImputer(strategy="median")
             self.dae_net = None

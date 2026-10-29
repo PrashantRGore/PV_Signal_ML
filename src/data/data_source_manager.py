@@ -132,7 +132,7 @@ class DataSourceManager:
             """
 📦 **1M Synthetic ICSR Records**
 - NO REAL PATIENT DATA
-- GDPR/HIPAA Compliant
+- De-identified synthetic data (Research Prototype)
 - Educational Use Only
             """
         )

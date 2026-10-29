@@ -5,6 +5,11 @@
 
 ---
 
+
+> [!IMPORTANT]
+> **Regulatory Notice on Pharmacovigilance & GDPR Article 17(3)(c)**:
+> In actual clinical pharmacovigilance practice, statutory adverse event reporting requirements (e.g., EMA GVP Module I/VI, FDA 21 CFR 314.80) are exempt from GDPR Article 17 "Right to Erasure" under GDPR Article 17(3)(b) (compliance with a legal obligation) and Article 17(3)(c) / Article 9(2)(i) (reasons of public interest in the area of public health). The machine unlearning and deletion workflows demonstrated in this repository represent an algorithmic research testbed (SISA framework) for exploring data revocation in machine learning models, rather than a legally required or permitted practice for genuine statutory PV records.
+
 ## 📋 Overview
 
 This guide explains how to process **Right to Be Forgotten (GDPR Article 17)** deletion requests in PV-Signal-ML.

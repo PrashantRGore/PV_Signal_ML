@@ -70,8 +70,8 @@ print(f"Loaded {len(df):,} records")
 
 ### Privacy
 
-✅ GDPR Compliant  
-✅ HIPAA Compliant  
+✅ De-identified Synthetic Data (Research Prototype)  
+✅ De-identified Synthetic Data (Research Prototype)  
 ✅ 100% Synthetic  
 ✅ No PII/PHI
 

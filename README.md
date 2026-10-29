@@ -1,19 +1,30 @@
 # PV-Signal-ML: Open-Source Pharmacovigilance Signal Detection & Machine Learning Platform
 
-**Zero-Cost, Legally Compliant, Local-First Pharmacovigilance Machine Learning System for Signal Detection, Statistical Disproportionality, Causal Inference, and Machine Unlearning (SISA).**
+**Zero-Cost, Local-First Pharmacovigilance Machine Learning Research Prototype for Signal Detection, Statistical Disproportionality, Causal Assessment, and Machine Unlearning (SISA).**
 
 ---
 
-## ⚖️ Zero-Cost & Open-Access Legal Architecture
+## ⚖️ Open-Access Legal Architecture & Regulatory Clarifications
 
-This project is strictly engineered to operate **free of commercial licensing fees and cloud API charges**:
+This platform is strictly designed to operate **free of commercial software license fees and paid cloud API charges**, while upholding transparency regarding intellectual property and regulatory standards:
 
-1. **No MedDRA License Required**:
-   Adverse event and indication terms are standardized using **openFDA Preferred Terms (PT)**, **NIH NLM RxNorm**, and **Medical Subject Headings (MeSH)** / ICD-10 cross-walks—all 100% public domain and freely accessible without MedDRA MSSO subscription fees.
-2. **Zero Cloud LLM Dependencies**:
-   Safety Assessment Report (SAR) generation runs entirely on local open-weight models via **Ollama** (`llama3.2`, `mistral`), with an automatic offline fallback to a **Deterministic Clinical Regulatory Template Engine** compliant with EMA GVP Module IX.
-3. **No Target Leakage (OMOP Ground Truth Benchmark)**:
-   Model evaluation and signal validation decouple ground-truth labels from arbitrary disproportionality thresholds ($PRR \ge 2 \land \chi^2 \ge 4$), utilizing the open-access **OMOP / OHDSI Reference Set** (*Ryan et al., 2013*) comprising curated positive and negative control pairs for AMI, UGIB, AKI, and DILI.
+1. **MedDRA® Terminology & FAERS Public Data Distinctions**:
+   - The U.S. Food and Drug Administration (FDA) publicly distributes quarterly Adverse Event Reporting System (FAERS) ASCII files and openFDA APIs for academic, research, and educational purposes. These extracts contain standardized reaction strings corresponding to MedDRA Preferred Terms (`PT`).
+   - However, **MedDRA®** (Medical Dictionary for Regulatory Activities) is proprietary intellectual property owned by the International Council for Harmonisation (ICH) and administered by the Maintenance and Support Services Organization (MSSO). In formal commercial pharmacovigilance, clinical safety operations, or regulatory submissions, organizations must maintain an official MedDRA subscription license from MSSO.
+   - This research prototype operates directly on freely distributed FDA FAERS public research extracts, **NIH NLM RxNorm**, and open biomedical crosswalks without packaging or distributing proprietary MedDRA dictionary files.
+
+2. **Local LLMs & Meta Llama Community License**:
+   - Safety Assessment Report (SAR) generation utilizes local open-weight large language models via **Ollama** (`llama3.2`, `mistral`).
+   - Llama 3.2 is governed by the **Meta Llama Community License Agreement** (free for research, commercial, and educational applications subject to Meta's Acceptable Use Policy).
+   - If Ollama is unavailable or offline, the system automatically falls back to an offline **Deterministic Clinical Regulatory Template Engine** aligned with EMA GVP Module IX principles.
+
+3. **GDPR Article 17 Statutory Exception & SISA Unlearning**:
+   - Under the European Union General Data Protection Regulation (GDPR) **Article 17(3)(b) & (c)** and **Article 9(2)(i)**, statutory pharmacovigilance safety monitoring obligations legally supersede patient "right to erasure" (right to be forgotten) requests due to overriding public health interests.
+   - The **SISA** (Sharded, Isolated, Sliced, Aggregated) machine unlearning implementation (*Bourtoule et al., 2021*) is provided as an academic machine learning research testbed exploring algorithmic data revocation in ML models, rather than a clinical compliance mechanism for statutory adverse event records.
+
+4. **No Target Leakage (OMOP Reference Standard)**:
+   - Ground truth training labels are strictly decoupled from disproportionality metrics ($PRR \ge 2 \land \chi^2 \ge 4$). Screening flags (`is_evans_signal`) remain separate from the target `label`, preventing circular target leakage.
+   - Reference evaluation leverages the open-access **OMOP / OHDSI Reference Set** (*Ryan et al., 2013*), featuring **81 curated reference control pairs** (40 positive and 41 negative controls across Acute Myocardial Infarction [AMI], Upper Gastrointestinal Bleeding [UGIB], Acute Kidney Injury [AKI], and Drug-Induced Liver Injury [DILI]).
 
 ---
 
@@ -22,13 +33,13 @@ This project is strictly engineered to operate **free of commercial licensing fe
 - **Vectorized Disproportionality Engine**:
   Computes Proportional Reporting Ratio (PRR), Reporting Odds Ratio (ROR) with 95% Confidence Intervals, and Yates' continuity-corrected Chi-Square ($\chi^2$) in milliseconds using NumPy matrix operations.
 - **Multivariate Tabular Imputation (MICE & PyTorch DAE)**:
-  Mathematically sound missing data imputation using **Multivariate Imputation by Chained Equations (MICE)** via `IterativeImputer` and an authentic **PyTorch Tabular Denoising Autoencoder** with corruption noise and reconstruction loss.
+  Mathematically sound missing data imputation using **Multivariate Imputation by Chained Equations (MICE)** via `IterativeImputer` and a **PyTorch Tabular Denoising Autoencoder** with corruption noise and reconstruction loss.
 - **Full FAERS Adverse Event Extraction**:
-  Preserves all reported adverse reactions per ICSR case (eliminating `.first()` truncation) and extracts concomitant medications directly from non-primary suspect drug records.
+  Preserves all reported adverse reactions per ICSR case (eliminating truncation) and extracts concomitant medications directly from non-primary suspect drug records.
 - **Algorithmic Regulatory Causality Assessment**:
   Evidence-based implementations of the **Naranjo Adverse Drug Reaction Probability Scale** (10 clinical items evaluated from case fields) and the **WHO-UMC Standardised Causality System** (temporal sequence, dechallenge, rechallenge, confounding risk).
-- **SISA Machine Unlearning (GDPR Right to Be Forgotten)**:
-  Sharded, Isolated, Sliced, Aggregated (SISA) ensemble training with XGBoost. When an unlearning request (`unlearn(case_id)`) arrives, only the single affected shard is retrained, avoiding expensive full-model re-training.
+- **SISA Machine Unlearning (Research Prototype)**:
+  Sharded, Isolated, Sliced, Aggregated (SISA) ensemble training with XGBoost. When an unlearning request (`unlearn(case_id)`) arrives, only the single affected shard is retrained, avoiding expensive full-model retraining.
 - **Explainability (SHAP TreeExplainer)**:
   Model-agnostic and tree-based feature attribution revealing individual risk drivers and global feature importance.
 
@@ -41,11 +52,11 @@ This project is strictly engineered to operate **free of commercial licensing fe
 | **Data Ingestion** | SAS / Snowflake | FAERS Enriched Extractor + DuckDB / SQLite | Public FDA ASCII Quarterly Zips & Parquet storage |
 | **Medical Terminology** | MedDRA MSSO | openFDA + NIH RxNorm + MeSH | Free US National Library of Medicine (NLM) REST APIs |
 | **Disproportionality** | SAS Macros / PhV Tools | Vectorized NumPy Engine | Evans PRR, van Puijenbroek ROR, Yates' $\chi^2$ |
-| **Ground Truth** | Proprietary Drug Safety DB | OMOP / OHDSI Reference Benchmark | 398 curated positive & negative controls (Ryan et al. 2013) |
+| **Ground Truth** | Proprietary Drug Safety DB | OMOP / OHDSI Reference Benchmark | 81 curated positive & negative controls (Ryan et al. 2013) |
 | **Missing Data Imputer** | Commercial Statistical Tool | MICE (`IterativeImputer`) + PyTorch DAE | van Buuren MICE algorithm + PyTorch neural autoencoder |
-| **ML Engine** | AWS SageMaker / Vertex AI | XGBoost + MLflow Tracking | Local multicore CPU/GPU execution |
+| **ML Engine** | AWS SageMaker / Vertex AI | XGBoost + MLflow Tracking | Local multicore CPU/GPU execution (pinned `mlflow<3`) |
 | **Narrative RAG** | Azure OpenAI / Bedrock | Local Ollama + Deterministic Fallback | `llama3.2` / `mistral` local execution + GVP Module IX engine |
-| **Compliance & Unlearning** | Manual Database Purge | SISA Trainer Ensemble | Retrains only 1 shard per GDPR unlearning request |
+| **Unlearning Exploration** | Manual Database Purge | SISA Trainer Ensemble | Retrains only 1 shard per algorithmic unlearning request |
 
 ---
 
@@ -53,9 +64,9 @@ This project is strictly engineered to operate **free of commercial licensing fe
 
 - **Python**: 3.9+ (tested on Python 3.13)
 - **Core ML & Numerics**: `numpy`, `pandas`, `scipy`, `scikit-learn`, `xgboost`, `torch`
-- **Explainability & Tracking**: `shap`, `mlflow`
-- **Pharmacovigilance Standards**: `requests` (NIH RxNav API), `biopython` (NCBI Entrez)
-- **Interactive Interfaces**: `streamlit` (UI), `networkx` (Knowledge Graph)
+- **Explainability & Tracking**: `shap`, `mlflow>=2.8.0,<3.0.0`
+- **Pharmacovigilance Standards & Mining**: `requests` (NIH RxNav API), `biopython>=1.83` (NCBI Entrez E-utilities)
+- **Interactive Interface**: `streamlit` (UI), `networkx` (Biomedical Knowledge Graph)
 - **Testing**: `pytest`, `pytest-cov`
 
 ---
@@ -90,16 +101,10 @@ python -m pytest
 ```
 *Expected: 15 passed unit tests.*
 
-### 3. Launch Applications
+### 3. Launch the Application
 
-**Primary Production UI (10 Tabs):**
 ```bash
-streamlit run app_production_v3.py
-```
-
-**Alternative Enhanced UI (6 Tabs):**
-```bash
-streamlit run app_enhanced.py
+streamlit run app.py
 ```
 
 Open `http://localhost:8501` in your browser.
@@ -117,13 +122,15 @@ ollama pull llama3.2
 
 ```text
 PV_Signal_ML/
-├── app_production_v3.py        # Primary Streamlit application (10 comprehensive tabs)
-├── app_enhanced.py             # Alternative Streamlit UI (6-tab focused workflow)
-├── pv_fullstack.py             # Fullstack entrypoint script
+├── app.py                      # Canonical Streamlit application
 ├── config.py                   # Central configuration & directory paths
 ├── pytest.ini                  # Pytest test discovery configuration
-├── requirements.txt            # Python dependencies
-├── README.md                   # System documentation
+├── requirements.txt            # Python dependencies (pinned mlflow, biopython)
+├── README.md                   # System documentation & legal notices
+├── VALIDATION_STATUS.md        # System validation matrix & prototype status
+├── PSMF_v1.0.md                # Educational PSMF Annex template
+├── ARCHITECTURE_v3.md          # Technical architecture documentation
+├── DEPLOYMENT_GUIDE.md         # Deployment & verification guide
 │
 ├── src/
 │   ├── causal/
@@ -139,7 +146,7 @@ PV_Signal_ML/
 │   │   ├── enrichment/
 │   │   │   └── faers_enriched_extractor.py  # FAERS ASCII parser preserving all reactions
 │   │   └── standards/
-│   │       ├── omop_benchmark.py    # OMOP/OHDSI ground truth reference controls
+│   │       ├── omop_benchmark.py    # OMOP/OHDSI ground truth reference controls (81 pairs)
 │   │       └── rxnorm_client.py     # NIH RxNav RxNorm API client with SQLite cache
 │   │
 │   ├── explainability/
@@ -153,8 +160,8 @@ PV_Signal_ML/
 │   │   └── pubmed_miner.py          # PubMed E-utilities search with rate limiting
 │   │
 │   ├── ml/
-│   │   ├── sisa_trainer.py          # Functional SISA unlearning ensemble trainer
-│   │   ├── causality_scorer.py      # Gradient boosted signal prioritization
+│   │   ├── sisa_trainer.py          # SISA unlearning ensemble trainer (XGBoost)
+│   │   ├── causality_scorer.py      # Prioritized causality scoring
 │   │   ├── feature_engineering/
 │   │   │   └── feature_pipeline.py  # Height-aware BMI & clean polypharmacy parsing
 │   │   └── nan_handler/
@@ -212,9 +219,13 @@ PV_Signal_ML/
    European Medicines Agency (EMA). *Guideline on good pharmacovigilance practices (GVP) Module IX – Signal management.* EMA/827661/2011 Rev 1.
 9. **US FDA Adverse Event Reporting System (FAERS) & RxNorm**:
    United States Food and Drug Administration (FDA) FAERS Public Database and National Library of Medicine (NLM) RxNav API (Public Domain, US Government).
+10. **Meta Llama Community License**:
+    Meta Platforms, Inc. *Llama 3.2 Community License Agreement.* Available at: [llama.meta.com/license](https://llama.meta.com/license).
+11. **MedDRA® Trademark Notice**:
+    MedDRA® is a registered trademark of the International Federation of Pharmaceutical Manufacturers and Associations (IFPMA) on behalf of the International Council for Harmonisation (ICH).
 
 ---
 
 ## ⚠️ Regulatory Disclaimer
 
-*This project is a research and educational platform demonstrating algorithmic concepts in pharmacovigilance, statistical disproportionality, causal assessment, and machine unlearning. It is not an FDA 21 CFR Part 11 validated production environment. For regulatory submissions to health authorities (FDA, EMA, PMDA, MHRA), formal GAMP-5 computer system validation (CSV) and audit qualification are required.*
+*This project is an open-source research and educational prototype demonstrating algorithmic concepts in pharmacovigilance, statistical disproportionality, causal assessment, and machine unlearning. It is not an FDA 21 CFR Part 11 or GAMP-5 validated production environment. For regulatory submissions to health authorities (FDA, EMA, PMDA, MHRA), formal computer system validation (CSV), installation qualification (IQ), operational qualification (OQ), and performance qualification (PQ) are required.*
