@@ -154,7 +154,7 @@ class DataSourceManager:
                         "load_time": datetime.now().isoformat(),
                         "record_count": len(data),
                         "synthetic": True,
-                        "legal_status": "GDPR_HIPAA_COMPLIANT",
+                        "legal_status": "SYNTHETIC_NO_REAL_PATIENT_DATA",
                     }
                     
                     st.sidebar.success(f"✅ Loaded {len(data):,} demo records")

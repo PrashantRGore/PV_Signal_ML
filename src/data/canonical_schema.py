@@ -206,11 +206,16 @@ def canonicalize_signals(
     if label_col:
         canonical["label"] = pd.to_numeric(df[label_col], errors="coerce").fillna(0).astype(int)
     else:
-        # Use PRR-based heuristic
-        canonical["label"] = (
+        # Strictly default unconfirmed pairs to 0 without circular thresholding of PRR/Chi2
+        # to prevent target leakage. Retain PRR/chi2 threshold strictly as screening flag 'is_evans_signal'.
+        canonical["label"] = 0
+        canonical["is_evans_signal"] = (
             (canonical["prr"] >= 2.0) & (canonical["chi2"] >= 4.0)
         ).astype(int)
-        logger.info(f"[{source}] No label column found, using PRR-based heuristic")
+        logger.warning(
+            f"[{source}] No external ground-truth label found. Setting label=0 (unconfirmed) "
+            "and populating 'is_evans_signal' screening candidate flag without target leakage."
+        )
     
     # ===== STEP 5: Preserve Tier 2 features =====
     

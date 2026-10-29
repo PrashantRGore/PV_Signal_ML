@@ -21,7 +21,7 @@ This is a **fully synthetic** dataset designed for pharmacovigilance signal dete
 
 ### Features
 
-- **100% Synthetic**: No real patient data - GDPR/HIPAA compliant
+- **100% Synthetic**: Synthetic dataset; contains no real patient data
 - **1M Records**: Large-scale dataset for ML training
 - **35 Features**: Causality, temporal, lab values, demographics
 - **700+ Drug-Event Signals**: Realistic signal patterns
@@ -29,14 +29,14 @@ This is a **fully synthetic** dataset designed for pharmacovigilance signal dete
 ### Files
 
 - `synthetic_faers_1m_pv_signal_ml.csv` - PV Signal ML compatible (recommended)
-- `synthetic_faers_1m_v2.csv` - Original column names
+- `synthetic_faers_1m_v3.csv` - Original column names
 
 ### Quick Start
 
 from datasets import load_dataset
 
 Load the dataset
-dataset = load_dataset("koreo/synthetic-faers-1m-v2",
+dataset = load_dataset("PrashantRGore/synthetic-faers-1m-v3",
 data_files="synthetic_faers_1m_pv_signal_ml.csv",
 split="train")
 

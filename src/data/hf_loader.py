@@ -31,8 +31,7 @@ DEFAULT_CSV_FILE = "synthetic_faers_1m_v3.csv"
 _env_cache = os.environ.get("PV_SIGNAL_CACHE_DIR")
 if _env_cache:
     CACHE_DIR = Path(_env_cache)
-elif Path("C:/Users/koreo/PV_Signal_Cache").exists():
-    CACHE_DIR = Path("C:/Users/koreo/PV_Signal_Cache")
+
 else:
     CACHE_DIR = Path(getattr(config, "HF_CACHE_DIR", config.DATA_DIR / "hf_cache"))
 

@@ -1,6 +1,6 @@
 # Validation Status & Regulatory Disclaimer
 
-**Date:** 2025-12-08  
+**Date:** 2026-10-30  
 **Project:** PV-Signal-ML  
 **Status:** 🔬 Research Prototype (Not Production-Validated)
 
@@ -138,7 +138,7 @@ To achieve formal FDA 21 CFR Part 11 compliance, this system would require:
 - ✅ Data lineage tracking
 - ✅ GDPR deletion registry
 - ✅ Pseudonymization support
-- ✅ Encryption at rest (file-based)
+- ❌ Encryption at rest: Not implemented (Plaintext local filesystem storage; research prototype only)
 
 ### NOT Implemented
 - ❌ User authentication (no login system)
@@ -232,7 +232,7 @@ Developed a proof-of-concept system demonstrating:
 - Signal detection algorithms (PRR, Chi-square)
 - ML-based signal ranking (XGBoost + SHAP)
 - Regulatory compliance concepts (audit trails, data lineage)
-- RAG-powered report generation (LangChain + Ollama)
+- Local LLM report generation (Ollama / Deterministic fallback; no LangChain dependency)
 
 Educational project showing how enterprise PV systems work. 
 Not validated for production use.

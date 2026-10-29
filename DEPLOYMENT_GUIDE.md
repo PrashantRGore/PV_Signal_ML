@@ -369,7 +369,7 @@ Use MIT or Apache 2.0 license
 
 ### MLflow Dashboard
 ```bash
-mlflow ui --backend-store-uri file:///C:/Users/koreo/mlruns
+mlflow ui --backend-store-uri file:./mlruns
 # Open http://127.0.0.1:5000
 ```
 
@@ -428,10 +428,10 @@ streamlit run app.py --logger.level=debug
 ### Issue: MLflow runs not showing
 ```bash
 # Check MLflow directory
-ls -la C:/Users/koreo/mlruns/
+ls -la ./mlruns/
 
 # Reset MLflow
-rm -rf C:/Users/koreo/mlruns/
+rm -rf ./mlruns/
 mlflow ui
 ```
 
@@ -450,7 +450,7 @@ mlflow ui
 - Describe steps to reproduce
 
 ### Contact
-- Email: prashant@example.com
+- Email: prashantgorepharmacology@gmail.com
 - GitHub: @PrashantRGore
 
 ---

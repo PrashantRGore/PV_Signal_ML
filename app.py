@@ -1,8 +1,8 @@
 """
 
-PV Signal ML - Production System v3.0 + RxNorm Phase 2 ✅ LIVE
+PV Signal ML - Research Prototype v3.0 + RxNorm Phase 2
 
-Complete regulatory-compliant pharmacovigilance signal detection system
+Open-source research prototype for pharmacovigilance signal detection and machine learning
 
 
 
@@ -26,7 +26,7 @@ Complete regulatory-compliant pharmacovigilance signal detection system
 
 
 
-Compliance: FDA 21 CFR Part 11 | GDPR | EMA GVP Module IX | CIOMS XIV
+Regulatory Alignment: Principles inspired by FDA 21 CFR Part 11, GDPR Art. 17(3)(c), EMA GVP Module IX, CIOMS XIV (Educational / Research Prototype)
 
 """
 
@@ -106,7 +106,7 @@ logger = setup_logger(__name__)
 
 st.set_page_config(
 
-    page_title="PV Signal ML v3.0 + RxNorm - Production", 
+    page_title="PV Signal ML v3.0 + RxNorm - Research Prototype", 
 
     page_icon="💊",
 
@@ -218,13 +218,13 @@ init_session_state()
 
 # =====================================================================
 
-# MACHINE UNLEARNING (GDPR Article 17) - REGULATORY COMPLIANT
+# MACHINE UNLEARNING (SISA Framework) - RESEARCH PROTOTYPE
 
 # =====================================================================
 
 class MachineUnlearner:
 
-    """Production Machine Unlearning for SISA (Audit Trail + 21 CFR Part 11)"""
+    """SISA Machine Unlearning Research Prototype (Demonstration Audit Trail)"""
 
     
 
@@ -2678,7 +2678,7 @@ st.markdown("""
 
     <h3>🔬 PV Signal ML v3.0 + RxNorm Phase 2 — Research Prototype (Non-Production)</h3>
 
-    <p><strong>Compliance:</strong> FDA 21 CFR Part 11 | GDPR Article 17 | EMA GVP Module IX | CIOMS XIV</p>
+    <p><strong>Regulatory Context:</strong> Educational / Research Prototype aligned with concepts from FDA 21 CFR Part 11 | GDPR Art. 17(3)(c) | EMA GVP Module IX | CIOMS XIV</p>
 
     <p>🥗 <strong>60% Complete:</strong> RxNorm ✅ | Features ✅ | SISA ✅ | Next: MLflow + SHAP</p>
 

@@ -24,7 +24,7 @@ This platform is strictly designed to operate **free of commercial software lice
 
 4. **No Target Leakage (OMOP Reference Standard)**:
    - Ground truth training labels are strictly decoupled from disproportionality metrics ($PRR \ge 2 \land \chi^2 \ge 4$). Screening flags (`is_evans_signal`) remain separate from the target `label`, preventing circular target leakage.
-   - Reference evaluation leverages the open-access **OMOP / OHDSI Reference Set** (*Ryan et al., 2013*), featuring **81 curated reference control pairs** (40 positive and 41 negative controls across Acute Myocardial Infarction [AMI], Upper Gastrointestinal Bleeding [UGIB], Acute Kidney Injury [AKI], and Drug-Induced Liver Injury [DILI]).
+   - Reference evaluation leverages the open-access **OMOP / OHDSI Reference Set** (*Ryan et al., 2012*), featuring **81 curated reference control pairs** (40 positive and 41 negative controls across Acute Myocardial Infarction [AMI], Upper Gastrointestinal Bleeding [UGIB], Acute Kidney Injury [AKI], and Drug-Induced Liver Injury [DILI]).
 
 ---
 
@@ -52,7 +52,7 @@ This platform is strictly designed to operate **free of commercial software lice
 | **Data Ingestion** | SAS / Snowflake | FAERS Enriched Extractor + DuckDB / SQLite | Public FDA ASCII Quarterly Zips & Parquet storage |
 | **Medical Terminology** | MedDRA MSSO | openFDA + NIH RxNorm + MeSH | Free US National Library of Medicine (NLM) REST APIs |
 | **Disproportionality** | SAS Macros / PhV Tools | Vectorized NumPy Engine | Evans PRR, van Puijenbroek ROR, Yates' $\chi^2$ |
-| **Ground Truth** | Proprietary Drug Safety DB | OMOP / OHDSI Reference Benchmark | 81 curated positive & negative controls (Ryan et al. 2013) |
+| **Ground Truth** | Proprietary Drug Safety DB | OMOP / OHDSI Reference Benchmark | 81 curated positive & negative controls (Ryan et al. 2012) |
 | **Missing Data Imputer** | Commercial Statistical Tool | MICE (`IterativeImputer`) + PyTorch DAE | van Buuren MICE algorithm + PyTorch neural autoencoder |
 | **ML Engine** | AWS SageMaker / Vertex AI | XGBoost + MLflow Tracking | Local multicore CPU/GPU execution (pinned `mlflow<3`) |
 | **Narrative RAG** | Azure OpenAI / Bedrock | Local Ollama + Deterministic Fallback | `llama3.2` / `mistral` local execution + GVP Module IX engine |
@@ -99,7 +99,7 @@ Verify the statistical engines, OMOP benchmark, imputer, causality assessor, and
 ```bash
 python -m pytest
 ```
-*Expected: 15 passed unit tests.*
+*Expected: 15 passed unit tests (or 14 passed, 1 skipped if PyTorch is not installed).*
 
 ### 3. Launch the Application
 
@@ -202,7 +202,7 @@ PV_Signal_ML/
 ## 📚 Legal Citations & Scientific References
 
 1. **OMOP Ground Truth Reference Standard**:
-   Ryan PB, Schuemie MJ, Gruber S, et al. *Empirical performance evaluation of methods for risk identification in healthcare data: results from the Experiments of the Observational Medical Outcomes Partnership.* Statistics in Medicine 2013; 32(30): 5601–5613. DOI: [10.1002/sim.5869](https://doi.org/10.1002/sim.5869). *(Open-access CC-BY 4.0)*.
+   Ryan PB, Madigan D, Stang PE, Overhage JM, Racoosin JA, Hartzema AG. *Empirical assessment of methods for risk identification in healthcare data: results from the experiments of the Observational Medical Outcomes Partnership.* Statistics in Medicine 2012; 31(30): 4401–4415. DOI: [10.1002/sim.5620](https://doi.org/10.1002/sim.5620). *(The OMOP benchmark reference dataset comprising 81 positive and negative control pairs is openly released by the OHDSI / OMOP research community).*
 2. **Proportional Reporting Ratio (PRR)**:
    Evans SJ, Waller PC, Davis S. *Use of proportional reporting ratios (PRRs) for signal detection from spontaneous adverse drug reaction reports.* Pharmacoepidemiol Drug Saf 2001; 10(6): 483–486. DOI: [10.1002/pds.677](https://doi.org/10.1002/pds.677).
 3. **Reporting Odds Ratio (ROR)**:

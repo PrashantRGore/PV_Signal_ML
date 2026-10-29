@@ -249,7 +249,7 @@ def generate_v4_quick(target_size=1_000_000):
 if __name__ == "__main__":
     df_v4 = generate_v4_quick(target_size=1_000_000)
     
-    output_path = r"C:\Users\koreo\PV_Signal_ML\data\synthetic_faers_1m_v4.csv"
+    output_path = os.path.join(os.path.dirname(__file__), "..", "data", "synthetic_faers_1m_v4.csv")
     print(f"\n💾 Saving to: {output_path}")
     df_v4.to_csv(output_path, index=False)
     

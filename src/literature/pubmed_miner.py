@@ -9,7 +9,7 @@ import time
 from typing import List, Dict
 
 class EnhancedPubMedMiner:
-    def __init__(self, email='pharmacovigilance@example.com'):
+    def __init__(self, email: str = os.getenv("NCBI_EMAIL", "prashantgorepharmacology@gmail.com")):
         Entrez.email = email
         Entrez.tool = "PV_Signal_ML"
     

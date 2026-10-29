@@ -6,7 +6,7 @@
 
 
 
-\*\*PV\_Signal\_ML v3.0\*\* is a production-ready pharmacovigilance signal detection system integrating:
+\*\*PV\_Signal\_ML v3.0\*\* is an open-source research prototype for pharmacovigilance signal detection integrating:
 
 \- 36-column FAERS enriched extraction
 
@@ -566,7 +566,7 @@
 
 
 
-\*\*Final Score: 5/6 (83%) - PRODUCTION READY\*\*
+\*\*Final Score: 5/6 (83%) - RESEARCH PROTOTYPE VALIDATED\*\*
 
 
 
@@ -594,7 +594,7 @@
 
 \- \[ ] CI/CD pipeline setup
 
-\- \[ ] Production database configuration
+\- \[ ] Local / prototype database configuration
 
 \- \[ ] Monitoring and alerting
 
@@ -672,7 +672,7 @@
 
 \*\*Last Updated\*\*: 2026-01-03  
 
-\*\*Status\*\*: Production Ready (83%)
+\*\*Status\*\*: Research Prototype (83%)
 
 
 

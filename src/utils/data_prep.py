@@ -92,17 +92,22 @@ def normalize_signals(
             )
 
     # --- 3. Map label column ---
-    # Priority: explicit label_prr -> is_signal_prr -> is_signal -> fallback 0
+    # Priority: ground truth (omop_label / ground_truth / label) -> fallback 0
+    # Avoid mapping label_prr / is_signal_prr to label, which creates circular target leakage
     if "label" not in df.columns:
-        if "label_prr" in df.columns:
-            df["label"] = df["label_prr"].astype(int)
-        elif "is_signal_prr" in df.columns:
-            df["label"] = df["is_signal_prr"].astype(int)
-        elif "is_signal" in df.columns:
-            df["label"] = df["is_signal"].astype(int)
+        if "ground_truth" in df.columns:
+            df["label"] = df["ground_truth"].astype(int)
+        elif "omop_label" in df.columns:
+            df["label"] = df["omop_label"].astype(int)
         else:
-            # If no label exists (e.g. some local exploratory datasets), default to 0
+            # If no independent ground truth exists, default to 0 (unconfirmed reference)
+            # Do NOT use PRR/Chi2 thresholding as target label to prevent circular leakage
             df["label"] = 0
+            if "label_prr" in df.columns or "is_signal_prr" in df.columns:
+                logger.warning(
+                    "Bypassed 'label_prr'/'is_signal_prr' for training target 'label' "
+                    "to prevent circular target leakage."
+                )
 
     # --- 4. Type enforcement ---
     df["drug_name"] = df["drug_name"].astype(str)

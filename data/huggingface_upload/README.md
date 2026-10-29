@@ -4,7 +4,7 @@
 
 This dataset contains **1 million synthetic Individual Case Safety Reports (ICSRs)** for pharmacovigilance signal detection.
 
-**⚠️ NO REAL PATIENT DATA** - Fully GDPR/HIPAA compliant synthetic data.
+**⚠️ NO REAL PATIENT DATA** - Fully synthetic dataset; contains no real patient data.
 
 ## 📊 Dataset Statistics
 
@@ -57,8 +57,8 @@ ole_cod: Drug role (PS=Primary Suspect)
 
 **This dataset is 100% synthetic and contains ZERO real patient data.**
 
-✅ **GDPR Compliant**: No personal identifiable information  
-✅ **HIPAA Compliant**: No protected health information  
+✅ **No PII**: Synthetic data containing no personal identifiable information  
+✅ **No PHI**: Synthetic data containing no protected health information  
 ✅ **MIT License**: Free for research and educational use  
 
 ⚠️ **NOT FOR PRODUCTION**: For training, research, and portfolio demonstration only.
