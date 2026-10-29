@@ -1,50 +1,24 @@
-﻿"""
-Logging utility for PV_Signal_ML
-Provides audit-compliant logging with timestamps
+"""
+PV Signal ML - Logger Utility
+Simple logger for production systems
 """
 import logging
-import sys
 from pathlib import Path
-from datetime import datetime
-import config
 
-
-def setup_logger(name: str, level=logging.INFO) -> logging.Logger:
-    """
-    Setup logger with file and console handlers
-    Args:
-        name: Logger name (typically __name__)
-        level: Logging level
-    Returns:
-        Configured logger instance
-    """
+def setup_logger(name: str = __name__):
+    """Setup standardized logger for PV Signal ML."""
     logger = logging.getLogger(name)
-    logger.setLevel(level)
+    logger.setLevel(logging.INFO)
     
-    # Avoid duplicate handlers
-    if logger.handlers:
-        return logger
-    
-    # Create formatters
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-    
-    # File handler (if audit logging enabled)
-    if config.ENABLE_AUDIT_LOGGING:
-        file_handler = logging.FileHandler(
-            config.AUDIT_LOG_FILE,
-            encoding='utf-8'
+    if not logger.handlers:
+        # Console handler
+        ch = logging.StreamHandler()
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
     
     return logger
+
+logger = setup_logger(__name__)

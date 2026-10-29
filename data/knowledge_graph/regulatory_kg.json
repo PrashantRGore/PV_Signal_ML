@@ -1,0 +1,187 @@
+{
+  "metadata": {
+    "created": "2026-10-29T18:29:27.577734",
+    "version": "1.0",
+    "node_count": 14,
+    "edge_count": 8
+  },
+  "nodes": {
+    "drugs": [
+      {
+        "name": "ASPIRIN",
+        "type": "DRUG",
+        "id": "DRUG_0"
+      },
+      {
+        "name": "WARFARIN",
+        "type": "DRUG",
+        "id": "DRUG_1"
+      },
+      {
+        "name": "METFORMIN",
+        "type": "DRUG",
+        "id": "DRUG_2"
+      }
+    ],
+    "events": [
+      {
+        "name": "GASTROINTESTINAL HAEMORRHAGE",
+        "type": "EVENT",
+        "id": "EVENT_0"
+      },
+      {
+        "name": "INTRACRANIAL HAEMORRHAGE",
+        "type": "EVENT",
+        "id": "EVENT_1"
+      },
+      {
+        "name": "LACTIC ACIDOSIS",
+        "type": "EVENT",
+        "id": "EVENT_2"
+      }
+    ],
+    "guidelines": [
+      {
+        "id": "FDA_AI_PV_2024",
+        "name": "FDA Guidance on AI in Pharmacovigilance",
+        "authority": "FDA",
+        "year": 2024,
+        "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents",
+        "key_points": [
+          "AI models must be explainable (SHAP, LIME)",
+          "Training data must be documented",
+          "Model versioning required",
+          "Audit trail mandatory (21 CFR Part 11)"
+        ]
+      },
+      {
+        "id": "EMA_GVP_MODULE_IX",
+        "name": "EMA GVP Module IX - Signal Management",
+        "authority": "EMA",
+        "year": 2017,
+        "url": "https://www.ema.europa.eu/en/human-regulatory/post-authorisation/pharmacovigilance",
+        "key_points": [
+          "Signal detection thresholds: PRR >= 2, Chi\u00b2 >= 4",
+          "Causality assessment required",
+          "Medical review mandatory",
+          "Quarterly signal reports"
+        ]
+      },
+      {
+        "id": "CIOMS_XIV_AI",
+        "name": "CIOMS XIV - AI and Machine Learning in Pharmacovigilance",
+        "authority": "CIOMS",
+        "year": 2024,
+        "url": "https://cioms.ch/",
+        "key_points": [
+          "Missing data handling must follow ICH E9",
+          "Bias mitigation required",
+          "Algorithm validation against gold standard",
+          "Human oversight essential"
+        ]
+      },
+      {
+        "id": "WHO_UMC_CAUSALITY",
+        "name": "WHO-UMC Causality Assessment System",
+        "authority": "WHO",
+        "year": 2018,
+        "url": "https://www.who-umc.org/",
+        "key_points": [
+          "Certain: Event follows drug, plausible, dechallenge/rechallenge positive",
+          "Probable/Likely: Event follows drug, plausible",
+          "Possible: Event follows drug, other causes possible",
+          "Unlikely: Temporal relationship poor"
+        ]
+      },
+      {
+        "id": "ICH_E2B_R3",
+        "name": "ICH E2B(R3) - ICSR Transmission",
+        "authority": "ICH",
+        "year": 2016,
+        "url": "https://www.ich.org/",
+        "key_points": [
+          "Standardized ICSR format",
+          "MedDRA coding required",
+          "Minimum data elements defined",
+          "Electronic transmission standards"
+        ]
+      }
+    ],
+    "signals": [
+      {
+        "drug": "ASPIRIN",
+        "event": "GASTROINTESTINAL HAEMORRHAGE",
+        "prr": 2.5,
+        "type": "SIGNAL",
+        "id": "SIGNAL_0"
+      },
+      {
+        "drug": "WARFARIN",
+        "event": "INTRACRANIAL HAEMORRHAGE",
+        "prr": 4.8,
+        "type": "SIGNAL",
+        "id": "SIGNAL_1"
+      },
+      {
+        "drug": "METFORMIN",
+        "event": "LACTIC ACIDOSIS",
+        "prr": 3.2,
+        "type": "SIGNAL",
+        "id": "SIGNAL_2"
+      }
+    ]
+  },
+  "edges": [
+    {
+      "from": "ASPIRIN",
+      "to": "GASTROINTESTINAL HAEMORRHAGE",
+      "relationship": "CAUSES",
+      "strength": 2.5,
+      "evidence": "training_data"
+    },
+    {
+      "from": "WARFARIN",
+      "to": "INTRACRANIAL HAEMORRHAGE",
+      "relationship": "CAUSES",
+      "strength": 4.8,
+      "evidence": "training_data"
+    },
+    {
+      "from": "METFORMIN",
+      "to": "LACTIC ACIDOSIS",
+      "relationship": "CAUSES",
+      "strength": 3.2,
+      "evidence": "training_data"
+    },
+    {
+      "from": "Myocardial infarction",
+      "to": "Ischaemic heart disease",
+      "relationship": "PT_TO_HLT",
+      "source": "MedDRA"
+    },
+    {
+      "from": "Cardiac failure",
+      "to": "Heart failures",
+      "relationship": "PT_TO_HLT",
+      "source": "MedDRA"
+    },
+    {
+      "from": "Hepatic failure",
+      "to": "Liver failures",
+      "relationship": "PT_TO_HLT",
+      "source": "MedDRA"
+    },
+    {
+      "from": "Acute kidney injury",
+      "to": "Renal failures",
+      "relationship": "PT_TO_HLT",
+      "source": "MedDRA"
+    },
+    {
+      "from": "Rhabdomyolysis",
+      "to": "Muscle disorders",
+      "relationship": "PT_TO_HLT",
+      "source": "MedDRA"
+    }
+  ]
+}

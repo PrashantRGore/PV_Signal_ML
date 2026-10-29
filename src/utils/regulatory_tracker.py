@@ -1,4 +1,4 @@
-﻿"""
+"""
 Regulatory Compliance Tracker - FIXED
 Logs ALL system operations to MLflow for FDA/EMA/PMDA audit compliance
 """

@@ -1,14 +1,18 @@
-﻿"""
-PV_Signal_ML Enhanced System - COMPLETE VERSION
-All features restored + Working SHAP
+"""
+PV Signal ML - Enhanced System
+Version: 2.0.0-canonical (FIXED: No re-downloading)
+Canonical Signal Schema with Automatic Cache Detection
 """
 
 import streamlit as st
 import pandas as pd
 import mlflow
 from pathlib import Path
+
 import config
 from src.data.data_source_manager import DataSourceManager
+from src.data.canonical_schema import canonicalize_signals, CanonicalSchema
+from src.utils.data_prep import prepare_data_for_signal_detection
 from src.stats_engine.disproportionality import DisproportionalityAnalysis
 from src.ml.sisa_trainer import SISATrainer
 from src.explainability.shap_analysis import SHAPAnalyzer
@@ -19,34 +23,41 @@ logger = setup_logger(__name__)
 # ===== PAGE CONFIG =====
 st.set_page_config(
     page_title="PV Signal ML - Enhanced",
-    page_icon="🔬",
+    page_icon="💊",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
 # ===== DISCLAIMER =====
 st.warning(config.DISCLAIMER_TEXT)
 
 # ===== TITLE =====
-st.title("🔬 Pharmacovigilance Signal Detection with SISA & SHAP")
+st.title("💊 Pharmacovigilance Signal Detection with SISA & SHAP")
 st.markdown("Enhanced System with Machine Unlearning, Explainable AI, RAG-based SAR, and MLflow")
 
 # ===== SESSION STATE INITIALIZATION =====
-if 'data_loaded' not in st.session_state:
+if "data_loaded" not in st.session_state:
     st.session_state.data_loaded = False
-if 'signals' not in st.session_state:
+if "signals" not in st.session_state:
     st.session_state.signals = None
-if 'trained_model' not in st.session_state:
+if "raw_data" not in st.session_state:
+    st.session_state.raw_data = None
+if "trained_model" not in st.session_state:
     st.session_state.trained_model = None
-# FIX 1: Add SAR session state
-if 'current_sar' not in st.session_state:
+if "training_results" not in st.session_state:
+    st.session_state.training_results = None
+if "analysis_mode" not in st.session_state:
+    st.session_state.analysis_mode = "tier1"
+if "current_sar" not in st.session_state:
     st.session_state.current_sar = None
-if 'current_signal_data' not in st.session_state:
+if "current_signal_data" not in st.session_state:
     st.session_state.current_signal_data = None
-if 'current_model_choice' not in st.session_state:
+if "current_model_choice" not in st.session_state:
     st.session_state.current_model_choice = None
+if "metadata" not in st.session_state:
+    st.session_state.metadata = {}
 
-# ===== SIDEBAR: SERVICE STATUS INDICATORS =====
+# ===== SIDEBAR: SERVICE STATUS =====
 st.sidebar.markdown("### 🔌 Service Status")
 
 # Ollama Status
@@ -58,15 +69,15 @@ try:
         st.sidebar.success(f"🟢 Ollama: {ollama_msg}")
     else:
         st.sidebar.error(f"🔴 Ollama: {ollama_msg}")
-except Exception as e:
-    st.sidebar.warning("⚪ Ollama: Not checked")
+except Exception:
+    st.sidebar.warning("⚠️ Ollama: Not checked")
 
 # MLflow Status
 try:
     mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
     experiments = mlflow.search_experiments()
     st.sidebar.success(f"🟢 MLflow: Connected ({len(experiments)} experiments)")
-except Exception as e:
+except Exception:
     st.sidebar.error("🔴 MLflow: Connection failed")
 
 st.sidebar.markdown("---")
@@ -84,111 +95,172 @@ elif source_type == "demo_hf":
 elif source_type == "faers_live":
     data = data_manager.load_faers_dataset()
 
+# FIXED: Auto-detect signals and cache them
 if data is not None:
     st.session_state.data_loaded = True
     st.session_state.raw_data = data
     st.session_state.metadata = data_manager.get_metadata()
     
-    # Display metadata
-    st.sidebar.success(f"✅ Data loaded: {len(data):,} records")
+    # Check if data already contains signal columns (Demo/FAERS sources)
+    has_signal_columns = all(col in data.columns for col in ["prr", "ror", "chi2"])
+    
+    if has_signal_columns:
+        # Data already contains computed signals - cache them immediately
+        logger.info(f"✅ Detected pre-computed signals in {source_type} data")
+        st.session_state.signals = canonicalize_signals(
+            data, 
+            source=source_type,
+            preserve_tier2=True
+        )
+        st.sidebar.success(f"✅ Data loaded: {len(data):,} signals (cached)")
+    else:
+        # Raw ICSR data - needs signal computation
+        logger.info(f"📊 Loaded raw ICSR data from {source_type}")
+        st.sidebar.success(f"✅ Data loaded: {len(data):,} records")
+    
+    # Show metadata
     with st.sidebar.expander("📋 Data Metadata"):
         st.json(data_manager.get_metadata())
 
-# ===== MAIN TABS (6 TABS - Reports removed) =====
+# ===== MAIN TABS =====
 if st.session_state.data_loaded:
     tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-        "🔍 Signal Detection",
+        "📊 Signal Detection",
         "🤖 ML Validation",
         "💡 Explainability",
         "📝 SAR Reports (RAG)",
-        "📋 MLflow Tracking",
+        "📈 MLflow Tracking",
         "🗑️ Unlearning"
     ])
     
-    # ========== TAB 1: SIGNAL DETECTION ==========
+    # ===== TAB 1: SIGNAL DETECTION =====
     with tab1:
-        st.header("Statistical Signal Detection")
-        if st.button("🚀 Run Signal Detection", type="primary"):
-            with st.spinner("Computing disproportionality signals..."):
-                stats_engine = DisproportionalityAnalysis()
-                signals = stats_engine.compute_signals(st.session_state.raw_data)
-                st.session_state.signals = signals
-                
-                # Stage 2: Apply ML Causality Assessment
-                st.info("🤖 Applying ML causality model to rank signals...")
-                from src.ml.causality_scorer import CausalityScorer
-                scorer = CausalityScorer()
-                if scorer.load_model():
-                    signals = scorer.score_signals(signals)
-                    signals = signals.sort_values('causality_score', ascending=False)
-                    st.success("✅ Causality assessment complete")
-                    
-                    col1, col2, col3 = st.columns(3)
-                    high_causal = (signals['causality_score'] > 0.7).sum()
-                    mod_causal = ((signals['causality_score'] >= 0.3) & (signals['causality_score'] <= 0.7)).sum()
-                    low_causal = (signals['causality_score'] < 0.3).sum()
-                    
-                    col1.metric("High Causality", f"{high_causal:,}", delta="Priority")
-                    col2.metric("Moderate Causality", f"{mod_causal:,}")
-                    col3.metric("Low Causality", f"{low_causal:,}")
-                else:
-                    st.info("ℹ️ Using statistical signals only (ML model not trained)")
-                
-                st.success(f"✅ Detected {len(signals)} signals")
+        st.header("📊 Statistical Signal Detection")
         
-        # ===== DRUG PORTFOLIO FILTER (RESTORED) =====
-        with st.sidebar.expander("🎯 Filter by Drug Portfolio"):
-            st.write("**Targeted Surveillance**")
-            st.write("Upload Excel with your portfolio drugs to focus analysis")
+        # Determine if signals are already cached
+        signals_cached = st.session_state.signals is not None
+        
+        if signals_cached:
+            # Signals already loaded - display immediately
+            st.success(f"✅ {len(st.session_state.signals):,} signals loaded from cache")
             
-            uploaded_drug_list = st.file_uploader(
-                "Upload drug list (Excel)",
-                type=['xlsx', 'xls'],
-                help="Excel file with drug names (any column)",
-                key="drug_filter_upload"
-            )
+        else:
+            # Raw ICSR data - show computation button
+            st.info("📊 Raw ICSR data loaded. Click 'Run Signal Detection' to compute PRR/ROR/Chi²")
             
-            if uploaded_drug_list:
-                from src.utils.drug_filter import DrugFilter
-                if 'drug_filter' not in st.session_state:
-                    st.session_state.drug_filter = DrugFilter()
-                
-                drug_count = st.session_state.drug_filter.load_from_excel(uploaded_drug_list)
-                if drug_count > 0:
-                    st.success(f"✅ Loaded {drug_count} portfolio drugs")
-                    
-                    with st.expander("View Portfolio"):
-                        drugs = st.session_state.drug_filter.drug_list
-                        st.write(drugs[:20])
-                        if len(drugs) > 20:
-                            st.write(f"... and {len(drugs)-20} more")
+            # Local dataset mode selection
+            if source_type == "local":
+                st.subheader("Local Dataset Analysis Mode")
+                col_mode1, col_mode2 = st.columns(2)
+                with col_mode1:
+                    if st.button("Quantitative (Tier 1)", help="Use minimal PRR/Chi² features only"):
+                        st.session_state.analysis_mode = "tier1"
+                with col_mode2:
+                    if st.button("Qualitative (Tier 2)", help="Use full engineered feature set"):
+                        st.session_state.analysis_mode = "tier2"
+                st.info(f"Current mode: {'Tier 1 (Quantitative)' if st.session_state.analysis_mode == 'tier1' else 'Tier 2 (Qualitative)'}")
+            
+            # Signal detection button
+            if st.button("🔬 Run Signal Detection", type="primary"):
+                with st.spinner("Computing disproportionality signals..."):
+                    try:
+                        stats_engine = DisproportionalityAnalysis(
+                            min_cases=config.MIN_CASE_COUNT
+                        )
+                        
+                        # Compute signals from raw ICSR data
+                        signals = stats_engine.compute_signals(st.session_state.raw_data)
+                        
+                        # Canonicalize
+                        normalized_signals = canonicalize_signals(
+                            signals,
+                            source=source_type,
+                            preserve_tier2=True
+                        )
+                        
+                        # Cache in session state
+                        st.session_state.signals = normalized_signals
+                        
+                        st.success(f"✅ Detected {len(normalized_signals):,} signals")
+                        st.rerun()
+                        
+                    except Exception as e:
+                        st.error(f"Signal detection failed: {str(e)}")
+                        logger.error(f"Signal detection error: {e}", exc_info=True)
         
-        # Apply drug filter to signals if active
-        if st.session_state.signals is not None and 'drug_filter' in st.session_state:
-            if st.session_state.drug_filter.active:
-                original_count = len(st.session_state.signals)
-                filtered_signals = st.session_state.drug_filter.filter_signals(st.session_state.signals)
-                st.info(f"🎯 **Portfolio Filter Active:** {len(filtered_signals):,} signals from {original_count:,} total")
-                
-                # Coverage report
-                coverage = st.session_state.drug_filter.get_coverage_report(st.session_state.signals)
-                col1, col2, col3 = st.columns(3)
-                col1.metric("Portfolio Drugs", coverage['total_portfolio'])
-                col2.metric("Drugs with Signals", coverage['drugs_with_signals'])
-                col3.metric("Drugs without Signals", coverage['drugs_without_signals'])
-                
-                if coverage['drugs_without_signals'] > 0:
-                    with st.expander(f"View {coverage['drugs_without_signals']} drugs without signals"):
-                        st.write(coverage['missing_list'])
-                
-                # Use filtered signals for display
-                st.session_state.signals = filtered_signals
-        
-        # Display signals
+        # Display signals if available
         if st.session_state.signals is not None:
-            st.subheader("Top Signals")
+            df = st.session_state.signals
             
-            # Filter controls
+            # Metrics
+            col1, col2, col3 = st.columns(3)
+            total_pairs = len(df)
+            signals_detected = int(df["label"].sum())
+            
+            col1.metric("Total Drug-Event Pairs", f"{total_pairs:,}")
+            col2.metric("Signals Detected", f"{signals_detected:,}")
+            if total_pairs > 0:
+                rate = (signals_detected / total_pairs) * 100
+                col3.metric("Signal Rate", f"{rate:.1f}%")
+            
+            # Drug Portfolio Filter
+            with st.sidebar.expander("🎯 Filter by Drug Portfolio"):
+                st.write("**Targeted Surveillance**")
+                st.write("Upload Excel with your portfolio drugs to focus analysis")
+                
+                uploaded_drug_list = st.file_uploader(
+                    "Upload drug list (Excel)",
+                    type=["xlsx", "xls"],
+                    help="Excel file with drug names (any column)",
+                    key="drug_filter_upload"
+                )
+                
+                if uploaded_drug_list:
+                    from src.utils.drug_filter import DrugFilter
+                    
+                    if "drug_filter" not in st.session_state:
+                        st.session_state.drug_filter = DrugFilter()
+                    
+                    drug_count = st.session_state.drug_filter.load_from_excel(uploaded_drug_list)
+                    
+                    if drug_count > 0:
+                        st.success(f"✅ Loaded {drug_count} portfolio drugs")
+                        
+                        with st.expander("View Portfolio"):
+                            drugs = st.session_state.drug_filter.drug_list
+                            st.write(drugs[:20])
+                            if len(drugs) > 20:
+                                st.write(f"... and {len(drugs)-20} more")
+                        
+                        if st.session_state.signals is not None and "drug_filter" in st.session_state:
+                            if st.session_state.drug_filter.active:
+                                original_count = len(st.session_state.signals)
+                                filtered_signals = st.session_state.drug_filter.filter_signals(
+                                    st.session_state.signals
+                                )
+                                
+                                st.info(f"🎯 Portfolio Filter Active: {len(filtered_signals):,} signals from {original_count:,} total")
+                                
+                                # Coverage report
+                                coverage = st.session_state.drug_filter.get_coverage_report(
+                                    st.session_state.signals
+                                )
+                                
+                                col1, col2, col3 = st.columns(3)
+                                col1.metric("Portfolio Drugs", coverage["total_portfolio"])
+                                col2.metric("Drugs with Signals", coverage["drugs_with_signals"])
+                                col3.metric("Drugs without Signals", coverage["drugs_without_signals"])
+                                
+                                if coverage["drugs_without_signals"] > 0:
+                                    with st.expander(f"View {coverage['drugs_without_signals']} drugs without signals"):
+                                        st.write(coverage["missing_list"])
+                                
+                                # Use filtered signals for display
+                                st.session_state.signals = filtered_signals
+            
+            # Signal filtering controls
+            st.subheader("Top Signals (Canonical Schema)")
+            
             col1, col2 = st.columns(2)
             with col1:
                 prr_threshold = st.slider("PRR Threshold", 1.0, 10.0, 2.0, 0.1)
@@ -196,54 +268,62 @@ if st.session_state.data_loaded:
                 min_cases = st.slider("Min Case Count", 3, 50, 3)
             
             # Filter signals
-            filtered = st.session_state.signals[
-                (st.session_state.signals['prr'] >= prr_threshold) &
-                (st.session_state.signals['case_count'] >= min_cases)
-            ]
+            filtered = df[(df["prr"] >= prr_threshold) & (df["case_count"] >= min_cases)].copy()
             
-            st.dataframe(
-                filtered[['drug_name', 'event_term', 'case_count', 'prr', 'chi2'] +
-                        (['causality_score', 'causality_level'] if 'causality_score' in filtered.columns else []) +
-                        ['is_signal_prr']],
-                width="stretch"
-            )
+            # Display columns
+            display_cols = ["drug_name", "event_term", "case_count", "prr", "ror", "chi2", "label"]
+            extra_cols = [c for c in filtered.columns if c not in display_cols]
+            display_cols += extra_cols[:5]  # Show a few extra Tier 2 features
             
-            # Download button
+            st.dataframe(filtered[display_cols], use_container_width=True)
+            
+            # Download
             csv = filtered.to_csv(index=False)
             st.download_button(
                 "📥 Download Signals CSV",
                 csv,
-                "signals.csv",
+                "signals_normalized.csv",
                 "text/csv"
             )
     
-    # ========== TAB 2: ML VALIDATION ==========
+    # ===== TAB 2: ML VALIDATION =====
     with tab2:
-        st.header("ML-Based Signal Validation (SISA)")
+        st.header("🤖 ML-Based Signal Validation (SISA)")
+        
         st.info("""
-**SISA (Sharded, Isolated, Sliced, Aggregated) Training**
-- Enables efficient machine unlearning for GDPR compliance
-- Trains ensemble of models on data shards
-- Allows removal of individual cases without full retraining
+        **SISA (Sharded, Isolated, Sliced, Aggregated) Training**
+        - Tier 1: Baseline model on canonical features (case_count, PRR, Chi²)
+        - Tier 2: Extended model using all available engineered features
         """)
         
         if st.session_state.signals is not None:
             col1, col2 = st.columns(2)
             with col1:
-                enable_sisa = st.checkbox("Enable SISA Training", value=config.ENABLE_SISA)
+                enable_sisa = st.checkbox("Enable SISA Training", value=True)
             with col2:
-                num_shards = st.number_input("Number of Shards", 5, 20, config.NUM_SHARDS)
+                num_shards = st.number_input(
+                    "Number of Shards",
+                    5, 20,
+                    config.NUM_SHARDS
+                )
             
             if st.button("🤖 Train ML Model", type="primary"):
                 with st.spinner("Training SISA ensemble..."):
-                    signals_df = st.session_state.signals
-                    
-                    if enable_sisa:
+                    try:
+                        signals_df = st.session_state.signals
                         model_dir = Path("models/sisa")
+                        
                         trainer = SISATrainer(model_dir)
                         
-                        # Train SISA model with feature pipeline
-                        results = trainer.train(signals_df, n_shards=num_shards)
+                        # Determine feature mode
+                        mode = st.session_state.analysis_mode if source_type == "local" else "auto"
+                        
+                        results = trainer.train(
+                            signals_df,
+                            n_shards=num_shards,
+                            mode=mode
+                        )
+                        
                         st.session_state.trained_model = trainer
                         st.session_state.training_results = results
                         
@@ -254,99 +334,112 @@ if st.session_state.data_loaded:
                         with col1:
                             st.metric("AUC Score", f"{results['auc']:.4f}")
                         with col2:
-                            st.metric("Training Samples", results['n_train'])
+                            st.metric("Training Samples", results["n_train"])
                         with col3:
-                            st.metric("Features", results['n_features'])
+                            st.metric("Features", results["n_features"])
                         
-                        # Show detailed results
-                        with st.expander("📊 Training Details"):
+                        with st.expander("Training Details"):
                             st.json({
-                                'auc': results['auc'],
-                                'n_features': results['n_features'],
-                                'feature_names': results['feature_names'],
-                                'n_train': results['n_train'],
-                                'n_test': results['n_test'],
-                                'n_shards': results['n_shards']
+                                "auc": results["auc"],
+                                "n_features": results["n_features"],
+                                "feature_names": results["feature_names"],
+                                "n_train": results["n_train"],
+                                "n_test": results["n_test"],
+                                "n_shards": results["n_shards"],
                             })
-                            st.code(results['report'])
-                    else:
-                        st.warning("SISA disabled - using standard training")
+                            
+                            summary_text = f"""
+AUC: {results['auc']:.4f}
+Features: {results['n_features']}
+Train samples: {results['n_train']}
+Test samples: {results['n_test']}
+Shards: {results['n_shards']}
+"""
+                            st.code(summary_text)
+                    
+                    except Exception as e:
+                        st.error(f"Training failed: {str(e)}")
+                        logger.error(f"Training error: {e}", exc_info=True)
         else:
             st.warning("⚠️ Run signal detection first (Tab 1)")
     
-    # ========== TAB 3: EXPLAINABILITY (FIXED SHAP) ==========
+    # ===== TAB 3: EXPLAINABILITY =====
     with tab3:
-        st.header("Model Explainability (SHAP)")
+        st.header("💡 Model Explainability (SHAP)")
         
         if st.session_state.trained_model is not None:
             if st.button("💡 Generate SHAP Explanations"):
-                # Check feature pipeline exists
-                if not hasattr(st.session_state.trained_model, 'feature_pipeline'):
-                    st.error("❌ Feature pipeline not found. Please retrain the model.")
-                    st.stop()
-                
                 with st.spinner("Computing SHAP values..."):
                     try:
                         signals_df = st.session_state.signals
-                        feature_pipeline = st.session_state.trained_model.feature_pipeline
+                        trainer = st.session_state.trained_model
                         
-                        # CRITICAL: Use feature pipeline to ensure same features
-                        X = feature_pipeline.transform(signals_df)
-                        st.info(f"📊 Using {len(feature_pipeline.feature_names)} features: {feature_pipeline.feature_names}")
-                        
-                        analyzer = SHAPAnalyzer()
-                        
-                        # Get model
-                        if hasattr(st.session_state.trained_model, 'model'):
-                            model = st.session_state.trained_model.model
-                        elif hasattr(st.session_state.trained_model, 'shard_models'):
-                            model = st.session_state.trained_model.shard_models[0]
-                        else:
-                            st.error("Model structure incompatible")
+                        # Get feature names from trainer
+                        feature_names = trainer.meta.get("feature_names", [])
+                        if not feature_names:
+                            st.error("No feature names in trainer meta. Retrain the model.")
                             st.stop()
                         
-                        # SHAP computation
-                        analyzer.compute_shap_values(model, X)
+                        # Build feature matrix
+                        X = signals_df[feature_names].astype(float)
                         
-                        # Generate global summary
+                        st.info(f"Using {len(feature_names)} features: {feature_names}")
+                        
+                        # Initialize SHAP analyzer
+                        analyzer = SHAPAnalyzer()
+                        
+                        # Get a representative model
+                        if hasattr(trainer, "shard_models") and trainer.shard_models:
+                            model = trainer.shard_models[0]
+                        else:
+                            st.error("No shard models available for SHAP.")
+                            st.stop()
+                        
+                        # Compute SHAP values
+                        analyzer.compute_shap_values(model, X)
                         summary = analyzer.generate_global_summary()
+                        
                         st.success("✅ SHAP analysis complete!")
                         
-                        # Display global summary
+                        # Display results
                         st.subheader("Global Feature Importance")
-                        st.image(summary['summary_plot'])
+                        st.image(summary["summary_plot"])
                         
-                        # Display top features
                         st.subheader("Top Features")
-                        top_features = pd.DataFrame(summary['top_features'])
-                        st.dataframe(top_features, width="stretch")
+                        top_features = pd.DataFrame(summary["top_features"])
+                        st.dataframe(top_features, use_container_width=True)
                         
                         st.info(f"Analysis based on {summary['n_samples_used']} samples")
-                        
+                    
                     except Exception as e:
-                        st.error(f"❌ SHAP computation failed: {str(e)}")
+                        st.error(f"SHAP computation failed: {str(e)}")
                         with st.expander("Error Details"):
                             st.code(str(e))
         else:
             st.warning("⚠️ Train ML model first (Tab 2)")
     
-    # ========== TAB 4: SAR REPORTS (FIXED VERSION) ==========
+    # ===== TAB 4: SAR REPORTS =====
     with tab4:
-        st.header("Signal Assessment Reports (RAG-based)")
-        st.info("Generate comprehensive SAR reports with causality assessment and literature evidence")
+        st.header("📝 Signal Assessment Reports (RAG-based)")
+        
+        st.info("Generate SAR reports using canonical metrics (PRR, Chi², case counts)")
         
         if st.session_state.signals is not None:
-            # Signal selection
-            top_signals = st.session_state.signals.head(50)
+            top_signals = st.session_state.signals.head(50).copy()
+            
             signal_options = top_signals.apply(
-                lambda x: f"{x['drug_name']} - {x['event_term']} (PRR: {x['prr']:.2f}, Cases: {x['case_count']})",
+                lambda x: f"{x['drug_name']} - {x['event_term']} (PRR: {x['prr']:.2f}, Cases: {int(x['case_count'])})",
                 axis=1
             ).tolist()
             
-            selected_idx = st.selectbox("Select Signal for SAR", range(len(signal_options)), format_func=lambda i: signal_options[i])
+            selected_idx = st.selectbox(
+                "Select Signal for SAR",
+                range(len(signal_options)),
+                format_func=lambda i: signal_options[i]
+            )
+            
             selected_signal = top_signals.iloc[selected_idx]
             
-            # Model selection
             col1, col2 = st.columns([2, 1])
             with col1:
                 model_choice = st.selectbox(
@@ -357,192 +450,173 @@ if st.session_state.data_loaded:
             with col2:
                 st.metric("Signal Strength", f"{selected_signal['prr']:.2f}")
             
-            # GENERATE BUTTON
             if st.button("📝 Generate SAR Report", type="primary"):
                 with st.spinner("Generating comprehensive SAR..."):
                     try:
                         from src.rag.sar_generator import SARGenerator
+                        from datetime import datetime
+                        
                         generator = SARGenerator(model_name=model_choice)
                         
                         # Check service
                         service_ok, msg = generator.check_service()
                         if not service_ok:
-                            st.error(f"❌ {msg}")
-                            st.info("💡 Start Ollama: ollama serve")
+                            st.error(f"{msg}")
+                            st.info("Start Ollama: `ollama serve`")
                             st.stop()
                         
                         # Prepare signal data
                         signal_data = {
-                            'drug_name': selected_signal['drug_name'],
-                            'event_name': selected_signal['event_term'],
-                            'count': int(selected_signal['case_count']),
-                            'prr': float(selected_signal['prr']),
-                            'chi_square': float(selected_signal['chi2'])
+                            "drug_name": selected_signal["drug_name"],
+                            "event_name": selected_signal["event_term"],
+                            "count": int(selected_signal["case_count"]),
+                            "prr": float(selected_signal["prr"]),
+                            "chi_square": float(selected_signal["chi2"]),
                         }
                         
                         # Generate SAR
                         sar_result = generator.generate_sar(signal_data, model_choice)
                         
-                        # FIX 2: Store in session state
+                        # Cache results
                         st.session_state.current_sar = sar_result
                         st.session_state.current_signal_data = signal_data
                         st.session_state.current_model_choice = model_choice
                         
                         st.success("✅ SAR Generated Successfully!")
                         st.rerun()
-                        
+                    
                     except Exception as e:
-                        st.error(f"❌ SAR generation failed: {str(e)}")
+                        st.error(f"SAR generation failed: {str(e)}")
                         with st.expander("Error Details"):
                             st.code(str(e))
             
-            # FIX 3: Display SAR if exists (with safe check)
-            if hasattr(st.session_state, 'current_sar') and st.session_state.current_sar is not None:
+            # Display cached SAR
+            if hasattr(st.session_state, "current_sar") and st.session_state.current_sar is not None:
+                from datetime import datetime
+                
                 st.markdown("---")
                 
                 sar_result = st.session_state.current_sar
                 signal_data = st.session_state.current_signal_data
                 model_choice = st.session_state.current_model_choice
                 
-                # Display causality if available
-                if sar_result.get('causality_assessment'):
-                    with st.expander("🔬 Causality Assessment", expanded=True):
-                        causality = sar_result['causality_assessment']
-                        col1, col2, col3 = st.columns(3)
-                        
-                        if 'who_umc' in causality:
-                            with col1:
-                                st.metric("WHO-UMC", causality['who_umc']['category'])
-                                st.caption(causality['who_umc']['rationale'])
-                        
-                        if 'naranjo' in causality:
-                            with col2:
-                                st.metric("Naranjo Score", f"{causality['naranjo']['score']}")
-                                st.caption(causality['naranjo']['category'])
-                        
-                        if 'consensus' in causality:
-                            with col3:
-                                st.metric("Consensus", causality['consensus']['level'])
-                
-                # Display literature if available
-                if sar_result.get('literature_evidence') and sar_result['literature_evidence'].get('n_papers', 0) > 0:
-                    with st.expander("📚 Literature Evidence", expanded=True):
-                        lit = sar_result['literature_evidence']
-                        st.markdown(lit['evidence_text'])
-                
-                # Display generated report
                 st.subheader("Generated SAR Report")
-                st.markdown(sar_result['report'])
+                st.markdown(sar_result["report"])
                 
-                # Evidence sources
-                with st.expander("📊 Evidence Sources"):
-                    for i, source in enumerate(sar_result['evidence_sources'], 1):
+                with st.expander("Evidence Sources"):
+                    for i, source in enumerate(sar_result["evidence_sources"], 1):
                         st.write(f"{i}. {source}")
                 
-                # FIX 4: Download button (as .txt)
-                from datetime import datetime
-                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-                clean_drug = signal_data['drug_name'].replace(' ', '_').replace('/', '_')[:50]
-                clean_event = signal_data['event_name'].replace(' ', '_').replace('/', '_')[:50]
+                # Download
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                clean_drug = signal_data["drug_name"].replace(" ", "_").replace(",", "")[:50]
+                clean_event = signal_data["event_name"].replace(" ", "_").replace(",", "")[:50]
                 report_filename = f"SAR_{clean_drug}_{clean_event}_{timestamp}.txt"
                 
-                full_report = f"""# Signal Assessment Report (SAR)
+                full_report = f"""Signal Assessment Report (SAR)
+=====================================
+Drug: {signal_data['drug_name']}
+Event: {signal_data['event_name']}
+Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} IST
 
-## Drug-Event Pair
-**Drug:** {signal_data['drug_name']}  
-**Event:** {signal_data['event_name']}  
-**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S IST')}
-
-## Signal Metrics
-- **PRR:** {signal_data['prr']:.2f}
-- **Case Count:** {signal_data['count']}
-- **Chi-Square:** {signal_data['chi_square']:.2f}
-- **LLM Model:** {model_choice}
+Signal Metrics:
+- PRR: {signal_data['prr']:.2f}
+- Case Count: {signal_data['count']}
+- Chi-Square: {signal_data['chi_square']:.2f}
+- LLM Model: {model_choice}
 
 ---
 
 {sar_result['report']}
 
 ---
-
-## Evidence Sources
 """
-                for i, source in enumerate(sar_result['evidence_sources'], 1):
-                    full_report += f"{i}. {source}\n"
                 
                 st.markdown("---")
                 col1, col2 = st.columns([3, 1])
-                
                 with col1:
                     st.download_button(
                         label="📥 Download SAR Report",
                         data=full_report,
                         file_name=report_filename,
                         mime="text/plain",
-                        width="stretch"
+                        use_container_width=True
                     )
-                
                 with col2:
-                    if st.button("🗑️ Clear", width="stretch"):
+                    if st.button("🗑️ Clear", use_container_width=True):
                         st.session_state.current_sar = None
                         st.session_state.current_signal_data = None
                         st.session_state.current_model_choice = None
                         st.rerun()
-        else:
+        
+        elif st.session_state.signals is None:
             st.warning("⚠️ Run signal detection first (Tab 1)")
     
-    # ========== TAB 5: MLFLOW TRACKING ==========
+    # ===== TAB 5: MLFLOW TRACKING =====
     with tab5:
-        st.header("MLflow Experiment Tracking")
+        st.header("📈 MLflow Experiment Tracking")
         st.info("Track model training experiments, metrics, and artifacts")
         
         try:
-            # Set MLflow tracking URI
             mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
-            
-            # Get all experiments
             experiments = mlflow.search_experiments()
             
             if experiments:
                 st.subheader("Experiments")
-                exp_df = pd.DataFrame([{
-                    'Name': exp.name,
-                    'ID': exp.experiment_id,
-                    'Artifact Location': exp.artifact_location
-                } for exp in experiments])
-                st.dataframe(exp_df, width="stretch")
+                exp_df = pd.DataFrame([
+                    {
+                        "Name": exp.name,
+                        "ID": exp.experiment_id,
+                        "Artifact Location": exp.artifact_location,
+                    }
+                    for exp in experiments
+                ])
+                st.dataframe(exp_df, use_container_width=True)
                 
                 # Select experiment
                 exp_names = [exp.name for exp in experiments]
                 selected_exp = st.selectbox("Select Experiment", exp_names)
-                
-                # Get runs for selected experiment
                 exp_id = [exp.experiment_id for exp in experiments if exp.name == selected_exp][0]
+                
+                # Get runs
                 runs = mlflow.search_runs(experiment_ids=[exp_id])
                 
                 if not runs.empty:
                     st.subheader(f"Runs for {selected_exp}")
                     
-                    # Display runs
-                    display_cols = ['run_id', 'start_time', 'status'] + [col for col in runs.columns if col.startswith('metrics.') or col.startswith('params.')]
-                    st.dataframe(runs[display_cols], width="stretch")
+                    display_cols = ["run_id", "start_time", "status"] + [
+                        col for col in runs.columns 
+                        if col.startswith("metrics.") or col.startswith("params.")
+                    ]
+                    st.dataframe(runs[display_cols], use_container_width=True)
                     
                     # Run details
                     if len(runs) > 0:
-                        run_idx = st.selectbox("Select Run", range(len(runs)), format_func=lambda i: f"Run {i+1}: {runs.iloc[i]['run_id'][:8]}")
+                        run_idx = st.selectbox(
+                            "Select Run",
+                            range(len(runs)),
+                            format_func=lambda i: f"Run {i+1}: {runs.iloc[i]['run_id'][:8]}"
+                        )
+                        
                         selected_run = runs.iloc[run_idx]
                         
                         with st.expander("Run Details", expanded=True):
                             col1, col2 = st.columns(2)
-                            
                             with col1:
-                                st.write("**Parameters:**")
-                                params = {k.replace('params.', ''): v for k, v in selected_run.items() if k.startswith('params.') and pd.notna(v)}
+                                st.write("**Parameters**")
+                                params = {
+                                    k.replace("params.", ""): v
+                                    for k, v in selected_run.items()
+                                    if k.startswith("params.") and pd.notna(v)
+                                }
                                 st.json(params)
-                            
                             with col2:
-                                st.write("**Metrics:**")
-                                metrics = {k.replace('metrics.', ''): v for k, v in selected_run.items() if k.startswith('metrics.') and pd.notna(v)}
+                                st.write("**Metrics**")
+                                metrics = {
+                                    k.replace("metrics.", ""): v
+                                    for k, v in selected_run.items()
+                                    if k.startswith("metrics.") and pd.notna(v)
+                                }
                                 st.json(metrics)
                 else:
                     st.info("No runs found for this experiment")
@@ -553,40 +627,42 @@ if st.session_state.data_loaded:
             st.error(f"MLflow connection error: {str(e)}")
             st.info("Make sure MLflow tracking server is running or using local file store")
     
-    # ========== TAB 6: UNLEARNING ==========
+    # ===== TAB 6: UNLEARNING =====
     with tab6:
-        st.header("Machine Unlearning (GDPR Right to be Forgotten)")
+        st.header("🗑️ Machine Unlearning (GDPR Right to be Forgotten)")
+        
         st.markdown("""
 **SISA Unlearning Process:**
 1. Enter Case ID to remove
 2. System identifies affected data shard
-3. Retrain only affected shard from checkpoint
+3. Retrain only affected shard (from checkpoint)
 4. Update ensemble without full retraining
-        """)
+""")
         
         if st.session_state.trained_model is not None:
             st.subheader("Current Model Version")
             col1, col2 = st.columns(2)
-            
             with col1:
                 st.metric("Model Version", "1")
             with col2:
-                if hasattr(st.session_state.trained_model, 'shard_models'):
+                if hasattr(st.session_state.trained_model, "shard_models"):
                     st.metric("Active Shards", len(st.session_state.trained_model.shard_models))
             
             st.subheader("Unlearn Case")
             case_id = st.text_input("Enter Case ID to Unlearn")
             
-            if st.button("🗑️ Unlearn Case", type="primary"):
+            if st.button("🔥 Unlearn Case", type="primary"):
                 if case_id:
                     with st.spinner(f"Unlearning case {case_id}..."):
                         try:
                             result = st.session_state.trained_model.unlearn(case_id)
-                            if result['status'] == 'unlearned':
+                            
+                            if result["status"] == "unlearned":
                                 st.success(f"✅ Case {case_id} successfully unlearned!")
                                 st.json(result)
                             else:
-                                st.warning(f"Case {case_id} not found in training data")
+                                st.warning(f"⚠️ Case {case_id} not found in training data")
+                        
                         except Exception as e:
                             st.error(f"Unlearning failed: {str(e)}")
                 else:
@@ -599,16 +675,14 @@ else:
 
 # ===== SIDEBAR FOOTER =====
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 📊 System Info")
+st.sidebar.markdown("### ℹ️ System Info")
 st.sidebar.markdown(f"**Version:** {config.VALIDATION_STATUS['code_version']}")
 st.sidebar.markdown(f"**MLflow URI:** {config.MLFLOW_TRACKING_URI}")
 
-# Ollama models info
 try:
     from src.rag.sar_generator import SARGenerator
     sar_gen = SARGenerator()
     model_ok, model_msg = sar_gen.check_model()
     st.sidebar.markdown(f"**Ollama Model:** {sar_gen.model_name}")
-except:
+except Exception:
     pass
-

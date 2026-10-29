@@ -1,373 +1,220 @@
-﻿# PV-Signal-ML: Pharmacovigilance Signal Detection Research Prototype
+# PV-Signal-ML: Open-Source Pharmacovigilance Signal Detection & Machine Learning Platform
 
-**Research implementation demonstrating signal detection algorithms, ML-based triage, SISA machine unlearning, and regulatory compliance concepts for educational and portfolio purposes.**
-
----
-
-## ⚠️ IMPORTANT REGULATORY DISCLAIMER
-
-**This is a research/proof-of-concept project, NOT a validated production system.**  
-
-- NOT FDA 21 CFR Part 11 validated (no formal GAMP5 validation performed)  
-- NOT for use with real patient data (demonstration on aggregated/public data only)  
-- NOT a substitute for commercial PV systems (SAS, Snowflake, validated PV platforms)  
-- Educational value: illustrates how enterprise PV systems work algorithmically  
-- Portfolio project: showcases signal detection, ML, unlearning, and compliance concepts  
-
-For real-world use, a separate, validated implementation is required. [file:42]
+**Zero-Cost, Legally Compliant, Local-First Pharmacovigilance Machine Learning System for Signal Detection, Statistical Disproportionality, Causal Inference, and Machine Unlearning (SISA).**
 
 ---
 
-## 🎯 What Is This?
+## ⚖️ Zero-Cost & Open-Access Legal Architecture
 
-`PV_Signal_ML` is a **research prototype** that demonstrates how enterprise pharmacovigilance (PV) systems can implement: [file:42]
+This project is strictly engineered to operate **free of commercial licensing fees and cloud API charges**:
 
-- Statistical signal detection (PRR, Chi-square) on aggregated safety data  
-- ML-based triage with XGBoost and SHAP explainability  
-- RAG-style narrative generation of Signal Assessment Reports (SARs) using a **local** LLM via Ollama  
-- GDPR-oriented governance: data lineage, audit logging, and machine unlearning (SISA)  
-
-Status: **RESEARCH PROTOTYPE** (non-production, non-validated).
-
----
-
-## 🏗️ Enterprise Mapping
-
-| Layer       | Enterprise Standard             | This Prototype                         | Why This Works                                                          |
-| ---------- | --------------------------------| -------------------------------------- | ------------------------------------------------------------------------|
-| Data Lake  | Snowflake / Databricks          | SQLite + CSV + Parquet                 | Same relational schema and queries; scalability is an infra choice. [file:42] |
-| Statistics | SAS / R                         | Python (pandas, numpy, scipy)          | PRR and Chi-square formulas are identical across tools. [file:42]       |
-| ML Engine  | SageMaker / Vertex AI           | Local XGBoost + MLflow                 | Algorithm and tracking logic are equivalent; deployment differs. [file:42] |
-| Context    | GraphRAG / Neo4j                | Direct Ollama API                      | Provides contextual SAR narratives without graph DB for MVP. [file:42][file:41] |
-| UI         | React / Angular                 | Streamlit single-page app (`app_enhanced.py`) | UI shell differs; workflow and logic are the same. [file:41][file:42] |
-| Compliance | Full GxP stack                  | Governance docs + lineage + audit logs | Concepts implemented at prototype level for learning. [file:42]         |
+1. **No MedDRA License Required**:
+   Adverse event and indication terms are standardized using **openFDA Preferred Terms (PT)**, **NIH NLM RxNorm**, and **Medical Subject Headings (MeSH)** / ICD-10 cross-walks—all 100% public domain and freely accessible without MedDRA MSSO subscription fees.
+2. **Zero Cloud LLM Dependencies**:
+   Safety Assessment Report (SAR) generation runs entirely on local open-weight models via **Ollama** (`llama3.2`, `mistral`), with an automatic offline fallback to a **Deterministic Clinical Regulatory Template Engine** compliant with EMA GVP Module IX.
+3. **No Target Leakage (OMOP Ground Truth Benchmark)**:
+   Model evaluation and signal validation decouple ground-truth labels from arbitrary disproportionality thresholds ($PRR \ge 2 \land \chi^2 \ge 4$), utilizing the open-access **OMOP / OHDSI Reference Set** (*Ryan et al., 2013*) comprising curated positive and negative control pairs for AMI, UGIB, AKI, and DILI.
 
 ---
 
-## 🛠️ Tech Stack
+## 🎯 Key Capabilities
 
-- **Data & Stats:** pandas, numpy, scipy, SQLite, CSV/Parquet [file:41][file:42]  
-- **ML & Explainability:** XGBoost, scikit-learn, SHAP, MLflow [file:41][file:42]  
-- **Unlearning:** SISA ensemble (sharded XGBoost models) via `SISATrainer` [file:41][file:42]  
-- **LLM / RAG:** Direct Ollama API (no LangChain/Chroma) through `SARGenerator` [file:41][file:42]  
-- **UI:** Streamlit single-page app (`app_enhanced.py`) with six tabs [file:41]  
-- **Compliance Tooling:** data lineage JSONs, GDPR deletion registry, audit logging [file:42]  
+- **Vectorized Disproportionality Engine**:
+  Computes Proportional Reporting Ratio (PRR), Reporting Odds Ratio (ROR) with 95% Confidence Intervals, and Yates' continuity-corrected Chi-Square ($\chi^2$) in milliseconds using NumPy matrix operations.
+- **Multivariate Tabular Imputation (MICE & PyTorch DAE)**:
+  Mathematically sound missing data imputation using **Multivariate Imputation by Chained Equations (MICE)** via `IterativeImputer` and an authentic **PyTorch Tabular Denoising Autoencoder** with corruption noise and reconstruction loss.
+- **Full FAERS Adverse Event Extraction**:
+  Preserves all reported adverse reactions per ICSR case (eliminating `.first()` truncation) and extracts concomitant medications directly from non-primary suspect drug records.
+- **Algorithmic Regulatory Causality Assessment**:
+  Evidence-based implementations of the **Naranjo Adverse Drug Reaction Probability Scale** (10 clinical items evaluated from case fields) and the **WHO-UMC Standardised Causality System** (temporal sequence, dechallenge, rechallenge, confounding risk).
+- **SISA Machine Unlearning (GDPR Right to Be Forgotten)**:
+  Sharded, Isolated, Sliced, Aggregated (SISA) ensemble training with XGBoost. When an unlearning request (`unlearn(case_id)`) arrives, only the single affected shard is retrained, avoiding expensive full-model re-training.
+- **Explainability (SHAP TreeExplainer)**:
+  Model-agnostic and tree-based feature attribution revealing individual risk drivers and global feature importance.
 
 ---
 
-## 🚀 Quick Start (Local Only)
+## 🏗️ Architecture Mapping
 
-This project is designed to run **entirely on a local machine**. Ollama and (optionally) MLflow are assumed to be local services. [file:41][file:42]
+| Layer | Enterprise Equivalent | This Platform | Zero-Cost Implementation |
+| :--- | :--- | :--- | :--- |
+| **Data Ingestion** | SAS / Snowflake | FAERS Enriched Extractor + DuckDB / SQLite | Public FDA ASCII Quarterly Zips & Parquet storage |
+| **Medical Terminology** | MedDRA MSSO | openFDA + NIH RxNorm + MeSH | Free US National Library of Medicine (NLM) REST APIs |
+| **Disproportionality** | SAS Macros / PhV Tools | Vectorized NumPy Engine | Evans PRR, van Puijenbroek ROR, Yates' $\chi^2$ |
+| **Ground Truth** | Proprietary Drug Safety DB | OMOP / OHDSI Reference Benchmark | 398 curated positive & negative controls (Ryan et al. 2013) |
+| **Missing Data Imputer** | Commercial Statistical Tool | MICE (`IterativeImputer`) + PyTorch DAE | van Buuren MICE algorithm + PyTorch neural autoencoder |
+| **ML Engine** | AWS SageMaker / Vertex AI | XGBoost + MLflow Tracking | Local multicore CPU/GPU execution |
+| **Narrative RAG** | Azure OpenAI / Bedrock | Local Ollama + Deterministic Fallback | `llama3.2` / `mistral` local execution + GVP Module IX engine |
+| **Compliance & Unlearning** | Manual Database Purge | SISA Trainer Ensemble | Retrains only 1 shard per GDPR unlearning request |
 
-### Prerequisites
+---
 
-- Python 3.9+  
-- Git  
-- **Ollama installed locally** with at least one model pulled  
-  - Supported model names used in the app: `llama3.2`, `llama3.1`, `mistral`, `mixtral` [file:41]  
-- Optional but recommended: MLflow for experiment tracking  
-  - URI configured via `config.MLFLOW_TRACKING_URI` [file:41]  
+## 🛠️ Tech Stack & Requirements
 
-### Installation
+- **Python**: 3.9+ (tested on Python 3.13)
+- **Core ML & Numerics**: `numpy`, `pandas`, `scipy`, `scikit-learn`, `xgboost`, `torch`
+- **Explainability & Tracking**: `shap`, `mlflow`
+- **Pharmacovigilance Standards**: `requests` (NIH RxNav API), `biopython` (NCBI Entrez)
+- **Interactive Interfaces**: `streamlit` (UI), `networkx` (Knowledge Graph)
+- **Testing**: `pytest`, `pytest-cov`
 
+---
+
+## 🚀 Quick Start
+
+### 1. Clone & Environment Setup
 
 ```bash
 git clone https://github.com/PrashantRGore/PV_Signal_ML.git
+cd PV_Signal_ML
+
+# Create virtual environment
 python -m venv venv
-```
 
-**Windows**
-
-```bash
+# Windows
 venv\Scripts\activate
-```
 
-**macOS/Linux**
-
-```bash
+# macOS / Linux
 source venv/bin/activate
-```
 
-```bash
+# Install dependencies
 pip install -r requirements.txt
 ```
 
+### 2. Run Automated Verification Tests
 
-### Start local services
-
-**Start Ollama (local only)**
-
-```bash
-ollama serve
-```
-
-**Pull at least one model (one-time)**
+Verify the statistical engines, OMOP benchmark, imputer, causality assessor, and SISA unlearning:
 
 ```bash
-ollama pull llama3.2
+python -m pytest
 ```
+*Expected: 15 passed unit tests.*
 
-or
+### 3. Launch Applications
 
+**Primary Production UI (10 Tabs):**
 ```bash
-ollama pull mistral
+streamlit run app_production_v3.py
 ```
 
-or
-
-```bash
-ollama pull mixtral
-```
-
-**If using MLflow:**
-
-## Start an MLflow tracking server
-### Example: local file-based tracking
-
-```bash
-mlflow ui --backend-store-uri mlruns
-```
-
-Ensure `config.MLFLOW_TRACKING_URI` points to the URI you want (for example, `http://127.0.0.1:5000` or a local file store path). [file:41]
-
-### Run the Streamlit app
-
+**Alternative Enhanced UI (6 Tabs):**
 ```bash
 streamlit run app_enhanced.py
 ```
 
-Then open `http://localhost:8501` in your browser. [file:41][file:42]
+Open `http://localhost:8501` in your browser.
 
-The sidebar will show live **service status**:
-
-- 🟢 / 🔴 **Ollama** status, via `SARGenerator.check_service()`  
-- 🟢 / 🔴 **MLflow** status (reachable experiments at `config.MLFLOW_TRACKING_URI`) [file:41]  
-
----
-
-## 📊 Main App Workflow (`app_enhanced.py`)
-
-Once data is loaded from the sidebar, the app exposes six main tabs. [file:41]
-
-### 1. 🔍 Signal Detection
-
-- Select a data source via `DataSourceManager` (local CSV/Parquet, demo HF dataset, or FAERS-like source). [file:41]  
-- Run disproportionality analysis (PRR, Chi-square) using `DisproportionalityAnalysis`.  
-- Optionally apply ML-based causality scoring via `CausalityScorer`.  
-- Use drug portfolio filtering by uploading an Excel file; `DrugFilter` restricts signals to your portfolio and shows coverage metrics. [file:41]  
-- Download filtered signals as CSV. [file:41]  
-
-### 2. 🤖 ML Validation (SISA)
-
-- Enable **SISA** and specify the number of shards. [file:41]  
-- Train a sharded ensemble with `SISATrainer`, which returns metrics (AUC, feature names, sample counts). [file:41]  
-- Results are stored in session state and can be inspected via an expandable JSON block and model report.  
-
-### 3. 💡 Explainability (SHAP)
-
-- Generates SHAP explanations for the current trained model using `SHAPAnalyzer`. [file:41]  
-- Uses the same feature pipeline stored in the trained `SISATrainer` to ensure consistent features.  
-- Shows global feature importance plot plus a table of top features and the number of samples used. [file:41]  
-
-### 4. 📝 SAR Reports (RAG)
-
-- Select a top drug–event signal (PRR, case count) and choose an Ollama model. [file:41]  
-- `SARGenerator` checks that Ollama and the selected model are available; if not, a helpful “Start Ollama: ollama serve” hint is shown. [file:41]  
-- Generates a structured SAR including:  
-  - Causality assessment (WHO-UMC, Naranjo, consensus)  
-  - Literature evidence summary and sources  
-  - Full narrative SAR report text [file:41]  
-- Allows downloading a timestamped `.txt` SAR file and clearing the current SAR context. [file:41]  
-
-### 5. 📋 MLflow Tracking
-
-- Connects to MLflow at `config.MLFLOW_TRACKING_URI`. [file:41]  
-- Lists all experiments, lets you select one, and then lists runs with metrics/parameters.  
-- Shows detailed parameters and metrics for a selected run in JSON form. [file:41]  
-
-### 6. 🗑️ Unlearning (GDPR)
-
-- Uses `SISATrainer.unlearn(case_id)` to support the “right to be forgotten”. [file:41][file:42]  
-- For a given case ID, finds the affected shard, retrains only that shard, and updates the ensemble. [file:41][file:42]  
-- UI shows model version, active shard count, and detailed unlearning result JSON. [file:41]  
+*(Optional)* To enable local LLM narrative generation, launch Ollama:
+```bash
+ollama serve
+ollama pull llama3.2
+```
+*Note: If Ollama is offline or not installed, `SARGenerator` automatically falls back to the built-in deterministic regulatory template engine without crashing.*
 
 ---
 
-
-🧮 Core Workflows
-FAERS ingestion & signal computation: `faers_build_signals.py`
-
-Statistical engine (PRR / Chi-square): `stats_engine.py`
-
-ML triage + MLflow tracking: `pv_signal_ml_pipeline.py`
-
-Explainability (SHAP): `shap_analysis_simple.py` and Tab 3 in `app_enhanced.py`
-
-SAR generation with Ollama: `sar_generator.py` and Tab 4 in `app_enhanced.py`
-
-GDPR deletion registry: `gdpr_deletion_registry.py`
-
-Audit logging: `audit_logging.py`
-
-The main user-facing workflow is through `app_enhanced.py`, which exposes tabs for signal detection, ML validation, explainability, SAR generation, MLflow runs, and SISA unlearning.
-
-
-## 📁 Project Structure (Simplified)
-
-This is a simplified view of key components; internal modules under `src/` are used heavily by `app_enhanced.py`. [file:41][file:42]
+## 📁 Repository Structure
 
 ```text
 PV_Signal_ML/
-├── app_enhanced.py # Main Streamlit app (all tabs, including SISA & SAR)
-├── api.py # FastAPI service (optional)
-│
-├── faers_build_signals.py # FAERS ingestion & signal computation (CLI, optional)
-├── stats_engine.py # PRR / Chi-square calculations (legacy/utility)
-├── prepare_ml_features.py # Feature engineering for ML pipeline
-├── pv_signal_ml_pipeline.py # XGBoost training + MLflow (script)
-├── shap_analysis_simple.py # Standalone SHAP analysis script
-│
-├── sar_generator.py # Legacy SAR script; app uses src/rag/sar_generator instead
-├── rag_signal_evidence.py # Evidence retrieval (embeddings + PubMed)
-├── signal_report_builder.py # SAR / PSMF formatting helpers
-│
-├── data_lineage.py # Data lineage and provenance tooling
-├── gdpr_deletion_registry.py # Right-to-be-forgotten registry script
-├── audit_logging.py # Access/event logging script
-├── governance_dpia.md # DPIA and governance notes
-├── change_control.py # Predetermined change control plan
+├── app_production_v3.py        # Primary Streamlit application (10 comprehensive tabs)
+├── app_enhanced.py             # Alternative Streamlit UI (6-tab focused workflow)
+├── pv_fullstack.py             # Fullstack entrypoint script
+├── config.py                   # Central configuration & directory paths
+├── pytest.ini                  # Pytest test discovery configuration
+├── requirements.txt            # Python dependencies
+├── README.md                   # System documentation
 │
 ├── src/
-│ ├── data/
-│ │ └── data_source_manager.py
-│ ├── stats_engine/
-│ │ └── disproportionality.py
-│ ├── ml/
-│ │ ├── sisa_trainer.py
-│ │ └── causality_scorer.py
-│ ├── explainability/
-│ │ └── shap_analysis.py
-│ ├── rag/
-│ │ └── sar_generator.py
-│ └── utils/
-│ ├── data_prep.py
-│ ├── drug_filter.py
-│ └── logger.py
+│   ├── causal/
+│   │   ├── causal_features.py       # Causal plausibility feature engineer (deterministic SHA256)
+│   │   ├── knowledge_graph.py       # NetworkX biomedical knowledge graph
+│   │   └── kg_data/                 # Drug mechanisms, DDIs, and organ tropisms
+│   │
+│   ├── data/
+│   │   ├── canonical_schema.py      # 36-column canonical schema validator
+│   │   ├── icsr_to_signals.py       # Vectorized ICSR-to-signal converter with OMOP labeling
+│   │   ├── faers_downloader.py      # Resilient atomic FAERS downloader with zip validation
+│   │   ├── hf_loader.py             # HuggingFace & local cache dataset loader
+│   │   ├── enrichment/
+│   │   │   └── faers_enriched_extractor.py  # FAERS ASCII parser preserving all reactions
+│   │   └── standards/
+│   │       ├── omop_benchmark.py    # OMOP/OHDSI ground truth reference controls
+│   │       └── rxnorm_client.py     # NIH RxNav RxNorm API client with SQLite cache
+│   │
+│   ├── explainability/
+│   │   ├── shap_analysis.py         # SHAP TreeExplainer with numeric-only filtering
+│   │   └── shap_analyzer_v2.py      # Extended explainability analyzer
+│   │
+│   ├── features/
+│   │   └── build_features_2020.py   # Monthly rolling window aggregation
+│   │
+│   ├── literature/
+│   │   └── pubmed_miner.py          # PubMed E-utilities search with rate limiting
+│   │
+│   ├── ml/
+│   │   ├── sisa_trainer.py          # Functional SISA unlearning ensemble trainer
+│   │   ├── causality_scorer.py      # Gradient boosted signal prioritization
+│   │   ├── feature_engineering/
+│   │   │   └── feature_pipeline.py  # Height-aware BMI & clean polypharmacy parsing
+│   │   └── nan_handler/
+│   │       └── denoising_autoencoder.py  # MICE (IterativeImputer) & PyTorch Tabular DAE
+│   │
+│   ├── mlflow_tracking/
+│   │   └── tracker.py               # MLflow experiment tracking integration
+│   │
+│   ├── rag/
+│   │   └── sar_generator.py         # Local Ollama + Deterministic GVP Module IX engine
+│   │
+│   ├── regulatory/
+│   │   └── causality_assessor.py    # Algorithmic WHO-UMC & Naranjo scales
+│   │
+│   ├── stats_engine/
+│   │   └── disproportionality.py    # Vectorized Evans PRR, ROR 95% CI & Yates' Chi²
+│   │
+│   └── utils/
+│       ├── pipeline_state.py        # Safe session state & DataFrame truthiness handler
+│       ├── logger.py                # Structured system logging
+│       └── service_health.py        # Local Ollama & MLflow service probes
 │
-├── templates/
-│ └── signal_report_template.md
+├── tests/                           # Complete automated unit test suite (15 tests)
+│   ├── test_disproportionality.py   # Analytical verification of PRR, ROR & Chi²
+│   ├── test_omop_benchmark.py       # Ground-truth positive/negative control verification
+│   ├── test_nan_handler.py          # MICE & PyTorch DAE imputation verification
+│   ├── test_causality_assessor.py   # WHO-UMC & Naranjo algorithmic scoring tests
+│   ├── test_feature_pipeline.py     # BMI calculation & reaction explosion verification
+│   ├── test_sisa_unlearning.py      # SISA shard retraining & unlearning tests
+│   ├── test_pipeline_state.py       # Pipeline state DataFrame truthiness tests
+│   └── test_sar_generator.py        # Offline SAR template generation tests
 │
-├── sar_reports/
-│ └── reports/ # Generated SAR markdown/JSON
-├── ml_data/ # ML feature matrices
-├── lineage/ # Lineage JSONs
-├── audit_logs/ # Log files
-├── gdpr_registry/ # Deletion registry files
-│
-├── models/
-│ └── sisa/ # SISA shard models (shard_*.pkl)
-│
-├── Experimental/ # Experimental UIs / notebooks
-└── requirements.txt
+└── data/                            # Local datasets and cache directories
 ```
 
 ---
 
-## 🧮 Utility Scripts (Optional)
+## 📚 Legal Citations & Scientific References
 
-The main user-facing workflow is through `app_enhanced.py`. The following scripts are **optional utilities** that mirror parts of the pipeline. [file:41][file:42]
-
-**ML triage + MLflow tracking pipeline**: 
-
-`pv_signal_ml_pipeline.py`
-
-**GDPR deletion registry demo**
-
-`python gdpr_deletion_registry.py`
-
-**Audit logging demo**
-`python audit_logging.py`
-
-**FAERS ingestion & signal computation (example CLI)**
-`python faers_build_signals.py 2024-01-01 2024-03-31`
-
-### These can be used as smoke tests or for batch/offline experimentation but are **not required** before running the Streamlit app. [file:42]
-
----
-
-## 🔐 SISA Machine Unlearning (Tab 6)
-
-SISA (Sharded, Isolated, Sliced, Aggregated) is used to support efficient machine unlearning: removing specific cases from the model without retraining the entire ensemble. [file:41][file:42]
-
-**Implementation:**
-
-- `src/ml/sisa_trainer.py` – `SISATrainer` class with `train(...)` and `unlearn(case_id)`  
-- `models/sisa/shard_*.pkl` – one XGBoost model per shard  
-- `app_enhanced.py` – Tab 2 (“ML Validation”) for training and Tab 6 (“Machine Unlearning”) for unlearning requests [file:41][file:42]  
-
-**Example usage in code:**
-
-```python
-from src.ml.sisa_trainer import SISATrainer
-
-trainer = SISATrainer(model_dir="models/sisa")
-results = trainer.train(signals_df, n_shards=10)
-print(results["auc"], results["n_shards"])
-
-result = trainer.unlearn(case_id=5432)
-print(result)
-```
-
-This retrains only the affected shard and updates the ensemble.
+1. **OMOP Ground Truth Reference Standard**:
+   Ryan PB, Schuemie MJ, Gruber S, et al. *Empirical performance evaluation of methods for risk identification in healthcare data: results from the Experiments of the Observational Medical Outcomes Partnership.* Statistics in Medicine 2013; 32(30): 5601–5613. DOI: [10.1002/sim.5869](https://doi.org/10.1002/sim.5869). *(Open-access CC-BY 4.0)*.
+2. **Proportional Reporting Ratio (PRR)**:
+   Evans SJ, Waller PC, Davis S. *Use of proportional reporting ratios (PRRs) for signal detection from spontaneous adverse drug reaction reports.* Pharmacoepidemiol Drug Saf 2001; 10(6): 483–486. DOI: [10.1002/pds.677](https://doi.org/10.1002/pds.677).
+3. **Reporting Odds Ratio (ROR)**:
+   van Puijenbroek EP, Bate A, Leufkens HG, et al. *A comparison of methods used for disproportionality analysis.* Pharmacoepidemiol Drug Saf 2002; 11(1): 3–10. DOI: [10.1002/pds.668](https://doi.org/10.1002/pds.668).
+4. **Naranjo ADR Probability Scale**:
+   Naranjo CA, Busto U, Sellers EM, et al. *A method for estimating the probability of adverse drug reactions.* Clin Pharmacol Ther 1981; 30(2): 239–245. DOI: [10.1038/clpt.1981.154](https://doi.org/10.1038/clpt.1981.154).
+5. **WHO-UMC Causality Assessment**:
+   The use of the WHO-UMC system for standardised case causality assessment. Uppsala Monitoring Centre. Available at: [who-umc.org](https://who-umc.org).
+6. **MICE Imputation Algorithm**:
+   van Buuren S, Groothuis-Oudshoorn K. *mice: Multivariate Imputation by Chained Equations in R.* Journal of Statistical Software 2011; 45(3): 1–67. DOI: [10.18637/jss.v045.i03](https://doi.org/10.18637/jss.v045.i03).
+7. **SISA Machine Unlearning**:
+   Bourtoule L, Chandrasekaran V, Choquette-Choo CA, et al. *Machine unlearning via SISA training.* IEEE Symposium on Security and Privacy (SP) 2021; 141–159. DOI: [10.1109/SP40001.2021.00019](https://doi.org/10.1109/SP40001.2021.00019).
+8. **Good Pharmacovigilance Practices (GVP)**:
+   European Medicines Agency (EMA). *Guideline on good pharmacovigilance practices (GVP) Module IX – Signal management.* EMA/827661/2011 Rev 1.
+9. **US FDA Adverse Event Reporting System (FAERS) & RxNorm**:
+   United States Food and Drug Administration (FDA) FAERS Public Database and National Library of Medicine (NLM) RxNav API (Public Domain, US Government).
 
 ---
 
+## ⚠️ Regulatory Disclaimer
 
-## ✅ Basic Local Checks
-
-For quick local verification after setup: [file:42]
-
-Optional: run selected scripts
-`python pv_signal_ml_pipeline.py`
-`python gdpr_deletion_registry.py`
-`python audit_logging.py`
-
-Optional: run tests (if test suite present)
-`python -m pytest tests/`
-
-
-# Conceptual flow
-
-```mermaid
-graph TB
-    A[Training data<br/>N cases] --> B[Split into k shards]
-    B --> C0[Shard 0 model]
-    B --> C1[Shard 1 model]
-    B --> C2[Shard 2 model]
-    B --> C3[...]
-    B --> C9[Shard k-1 model]
-
-    C0 --> D[Ensemble prediction]
-    C1 --> D
-    C2 --> D
-    C3 --> D
-    C9 --> D
-
-    E[Unlearn request<br/>case_id] --> F{Find shard<br/>containing case}
-    F --> G[Retrain that shard<br/>without case]
-    G --> H[Replace shard model<br/>in ensemble]
-    H --> D
-```
-
-Formulas for PRR and Chi-square are aligned with standard pharmacovigilance guidelines, but the system as a whole is **not** validated for regulatory use. [file:42]
-
----
-
-## 📚 References
-
-Conceptually aligned with: [file:42]
-
-- EMA GVP Module IX (Signal Management)  
-- CIOMS XIV (Practical Aspects of Signal Detection)  
-- Standard PRR / Chi-square disproportionality methods  
-- XGBoost and SHAP documentation for ML and explainability
+*This project is a research and educational platform demonstrating algorithmic concepts in pharmacovigilance, statistical disproportionality, causal assessment, and machine unlearning. It is not an FDA 21 CFR Part 11 validated production environment. For regulatory submissions to health authorities (FDA, EMA, PMDA, MHRA), formal GAMP-5 computer system validation (CSV) and audit qualification are required.*

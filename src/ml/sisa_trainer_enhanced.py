@@ -1,4 +1,4 @@
-﻿"""
+"""
 Enhanced SISA Trainer with Progress Tracking
 Shows step-by-step unlearning progress
 """

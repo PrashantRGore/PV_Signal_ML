@@ -1,0 +1,290 @@
+{
+  "case_id": {
+    "dtype": "object",
+    "unique_values": 100,
+    "sample": [
+      "E787C9A1FC17D940",
+      "A29236736650CAB3"
+    ]
+  },
+  "fda_dt": {
+    "dtype": "object",
+    "unique_values": 99,
+    "sample": [
+      "2023-04-19",
+      "2021-10-30"
+    ]
+  },
+  "country": {
+    "dtype": "object",
+    "unique_values": 29,
+    "sample": [
+      "CHN",
+      "POL"
+    ]
+  },
+  "age": {
+    "dtype": "int64",
+    "unique_values": 60,
+    "sample": [
+      52,
+      45
+    ]
+  },
+  "age_group": {
+    "dtype": "object",
+    "unique_values": 6,
+    "sample": [
+      "adult",
+      "adult"
+    ]
+  },
+  "sex": {
+    "dtype": "object",
+    "unique_values": 3,
+    "sample": [
+      "Unknown",
+      "Male"
+    ]
+  },
+  "weight": {
+    "dtype": "float64",
+    "unique_values": 60,
+    "sample": [
+      110.5,
+      115.0
+    ]
+  },
+  "drug_name": {
+    "dtype": "object",
+    "unique_values": 24,
+    "sample": [
+      "Hematocare",
+      "Osteostrong"
+    ]
+  },
+  "drug_indication": {
+    "dtype": "object",
+    "unique_values": 24,
+    "sample": [
+      "Hypothyroidism",
+      "Bipolar disorder"
+    ]
+  },
+  "route_of_admin": {
+    "dtype": "object",
+    "unique_values": 10,
+    "sample": [
+      "Subcutaneous",
+      "Intravenous"
+    ]
+  },
+  "dose": {
+    "dtype": "int64",
+    "unique_values": 12,
+    "sample": [
+      5,
+      50
+    ]
+  },
+  "dose_unit": {
+    "dtype": "object",
+    "unique_values": 1,
+    "sample": [
+      "mg",
+      "mg"
+    ]
+  },
+  "dose_freq": {
+    "dtype": "object",
+    "unique_values": 5,
+    "sample": [
+      "Four times daily",
+      "Four times daily"
+    ]
+  },
+  "therapy_duration": {
+    "dtype": "float64",
+    "unique_values": 64,
+    "sample": [
+      688.0,
+      348.0
+    ]
+  },
+  "llt": {
+    "dtype": "object",
+    "unique_values": 81,
+    "sample": [
+      "High blood pressure",
+      "AKI"
+    ]
+  },
+  "pt": {
+    "dtype": "object",
+    "unique_values": 51,
+    "sample": [
+      "Deep vein thrombosis",
+      "Acute kidney injury"
+    ]
+  },
+  "hlt": {
+    "dtype": "object",
+    "unique_values": 15,
+    "sample": [
+      "Hypertension",
+      "Acute renal failures"
+    ]
+  },
+  "hlgt": {
+    "dtype": "object",
+    "unique_values": 15,
+    "sample": [
+      "Vascular hypertensive disorders",
+      "Renal failures and impairments"
+    ]
+  },
+  "soc": {
+    "dtype": "object",
+    "unique_values": 15,
+    "sample": [
+      "Vascular disorders",
+      "Renal and urinary disorders"
+    ]
+  },
+  "ttp_days": {
+    "dtype": "int64",
+    "unique_values": 63,
+    "sample": [
+      29,
+      7
+    ]
+  },
+  "event_duration": {
+    "dtype": "float64",
+    "unique_values": 43,
+    "sample": [
+      69.0,
+      45.0
+    ]
+  },
+  "serious": {
+    "dtype": "object",
+    "unique_values": 7,
+    "sample": [
+      "Non-serious",
+      "Non-serious"
+    ]
+  },
+  "outcome": {
+    "dtype": "object",
+    "unique_values": 6,
+    "sample": [
+      "Recovered/Resolved",
+      "Recovered/Resolved"
+    ]
+  },
+  "action_drug": {
+    "dtype": "object",
+    "unique_values": 6,
+    "sample": [
+      "Drug withdrawn",
+      "Drug withdrawn"
+    ]
+  },
+  "dechallenge": {
+    "dtype": "object",
+    "unique_values": 4,
+    "sample": [
+      "Positive",
+      "Positive"
+    ]
+  },
+  "rechallenge": {
+    "dtype": "object",
+    "unique_values": 3,
+    "sample": [
+      "Not applicable",
+      "Not applicable"
+    ]
+  },
+  "concomitant_drugs": {
+    "dtype": "object",
+    "unique_values": 60,
+    "sample": [
+      "Aspirin",
+      "Hydrochlorothiazide"
+    ]
+  },
+  "medical_history": {
+    "dtype": "object",
+    "unique_values": 72,
+    "sample": [
+      "Hyperlipidemia; Alcohol use disorder; Chronic kidney disease; Previous myocardial infarction",
+      "Peripheral vascular disease; Hypothyroidism; Previous myocardial infarction"
+    ]
+  },
+  "reporter_qualification": {
+    "dtype": "object",
+    "unique_values": 5,
+    "sample": [
+      "Physician",
+      "Consumer"
+    ]
+  },
+  "report_source": {
+    "dtype": "object",
+    "unique_values": 4,
+    "sample": [
+      "Spontaneous",
+      "Clinical trial"
+    ]
+  },
+  "causality": {
+    "dtype": "object",
+    "unique_values": 4,
+    "sample": [
+      "Probable/Likely",
+      "Probable/Likely"
+    ]
+  },
+  "alt": {
+    "dtype": "float64",
+    "unique_values": 38,
+    "sample": [
+      12.0,
+      15.0
+    ]
+  },
+  "ast": {
+    "dtype": "float64",
+    "unique_values": 36,
+    "sample": [
+      12.0,
+      35.0
+    ]
+  },
+  "bilirubin": {
+    "dtype": "float64",
+    "unique_values": 20,
+    "sample": [
+      0.4,
+      0.5
+    ]
+  },
+  "creatinine": {
+    "dtype": "float64",
+    "unique_values": 12,
+    "sample": [
+      1.0,
+      7.1
+    ]
+  },
+  "bun": {
+    "dtype": "float64",
+    "unique_values": 18,
+    "sample": [
+      16.0,
+      46.0
+    ]
+  }
+}

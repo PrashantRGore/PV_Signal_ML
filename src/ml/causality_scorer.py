@@ -1,4 +1,4 @@
-﻿"""
+"""
 Causality Assessment: Apply ML model to rank signals
 """
 

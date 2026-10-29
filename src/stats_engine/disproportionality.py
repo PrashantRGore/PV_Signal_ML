@@ -1,148 +1,207 @@
 """
-Optimized Disproportionality Analysis for Large-Scale FAERS Data
-Regulatory Compliant: FDA, EMA, WHO guidelines
+Disproportionality Analysis - Statistical Signal Detection
+NOW WITH: Canonical schema output + VECTORIZED computation + CORRECT chi2 + FIXED label logic
 """
 
 import pandas as pd
 import numpy as np
-from scipy import stats
-from typing import Tuple
-import streamlit as st
+from scipy.stats import chi2_contingency
+from typing import Optional
+import warnings
+
+from src.data.canonical_schema import CanonicalSchema
 from src.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+
 
 class DisproportionalityAnalysis:
     """
-    Vectorized disproportionality analysis for pharmacovigilance
-    Regulatory Standards:
-    - FDA: PRR ≥ 2, Chi² ≥ 4, N ≥ 3
-    - EMA: Similar thresholds with ROR
-    - WHO: IC (Information Component)
+    Compute PRR, ROR, and Chi-Square for drug-event pairs.
+
+    OUTPUT: Always in canonical schema format (no column name ambiguity)
     """
-    
-    def __init__(self, min_case_count=3, prr_threshold=2.0, chi2_threshold=4.0):
-        self.min_case_count = min_case_count
-        self.prr_threshold = prr_threshold
-        self.chi2_threshold = chi2_threshold
-    
-    def compute_signals(self, data: pd.DataFrame) -> pd.DataFrame:
+
+    def __init__(self, min_cases: int = 3):
+        self.min_cases = min_cases
+
+    def compute_signals(
+        self, icsr_data: pd.DataFrame, label_col: Optional[str] = None
+    ) -> pd.DataFrame:
         """
-        OPTIMIZED: Vectorized computation for millions of records
+        Compute disproportionality signals from raw ICSR data.
+
+        Args:
+            icsr_data: Raw ICSR data with columns [case_id, drug_name, event_term]
+            label_col: Optional ground truth label column (for Demo 1M dataset)
+
+        Returns:
+            DataFrame in CANONICAL SCHEMA format with columns:
+            - drug_name, event_term, case_count, prr, ror, chi2, label
+            - Plus any Tier 2 features from input (preserved if present)
         """
-        logger.info(f"Starting signal detection on {len(data):,} records")
-        st.info(f"📊 Analyzing {len(data):,} records...")
+        logger.info(f"Computing signals from {len(icsr_data):,} ICSR records")
+
+        # Validate required columns
+        required_cols = ["drug_name", "event_term"]
+        missing = [c for c in required_cols if c not in icsr_data.columns]
+        if missing:
+            raise ValueError(f"Missing required columns: {missing}")
+
+        # Check for Tier 2 features in input (Demo 1M case)
+        tier2_features = [
+            col for col in icsr_data.columns
+            if col not in CanonicalSchema.TIER1_REQUIRED
+            and col not in ["case_id", "drug_name", "event_term"]
+            and pd.api.types.is_numeric_dtype(icsr_data[col])
+        ]
+
+        has_tier2 = len(tier2_features) > 0
+        if has_tier2:
+            logger.info(f"Detected {len(tier2_features)} Tier 2 features in input data")
+
+        # Group by drug-event pairs
+        if has_tier2:
+            # Aggregate Tier 2 features using mean
+            agg_dict = {"case_id": "count"}
+            for col in tier2_features:
+                agg_dict[col] = "mean"
+
+            df = (
+                icsr_data.groupby(["drug_name", "event_term"])
+                .agg(agg_dict)
+                .reset_index()
+            )
+        else:
+            # Simple case count
+            df = (
+                icsr_data.groupby(["drug_name", "event_term"])
+                .size()
+                .reset_index(name="case_id")
+            )
+
+        # Rename case_id count to case_count (canonical name)
+        df.rename(columns={"case_id": "case_count"}, inplace=True)
+
+        # Filter by minimum cases
+        df = df[df["case_count"] >= self.min_cases].copy()
+        logger.info(f"After filtering: {len(df):,} drug-event pairs")
+
+        if len(df) == 0:
+            logger.warning("No signals found after filtering")
+            return pd.DataFrame(columns=CanonicalSchema.TIER1_REQUIRED)
+
+        # ========================================================================
+        # VECTORIZED COMPUTATION - Pre-compute marginal counts ONCE
+        # ========================================================================
+        total_reports = icsr_data["case_id"].nunique()
         
-        # Get unique case counts (VECTORIZED)
-        total_cases = data['case_id'].nunique()
-        st.write(f"Total unique cases: {total_cases:,}")
+        # Pre-compute drug marginals (b values)
+        drug_counts = icsr_data.groupby("drug_name")["case_id"].nunique().to_dict()
         
-        # Count drug-event pairs (VECTORIZED)
-        progress = st.progress(0, text="Computing contingency tables...")
-        drug_event_counts = data.groupby(['drug_name', 'event_term'])['case_id'].nunique().reset_index()
-        drug_event_counts.columns = ['drug_name', 'event_term', 'n11']
+        # Pre-compute event marginals (c values)
+        event_counts = icsr_data.groupby("event_term")["case_id"].nunique().to_dict()
         
-        # Filter by minimum count
-        drug_event_counts = drug_event_counts[drug_event_counts['n11'] >= self.min_case_count]
-        st.write(f"Drug-event pairs (≥{self.min_case_count} cases): {len(drug_event_counts):,}")
+        # Vectorized computation
+        df["drug_total"] = df["drug_name"].map(drug_counts)
+        df["event_total"] = df["event_term"].map(event_counts)
         
-        progress.progress(0.2, text="Computing drug totals...")
+        # Contingency table:
+        #              Event    Not Event   Total
+        # Drug          a         b         a+b = drug_total
+        # Not Drug      c         d         c+d = not_drug_total
+        # Total        a+c       b+d          N
+        a = df["case_count"].values.astype(float)
+        b = (df["drug_total"].values - a).astype(float)
+        c = (df["event_total"].values - a).astype(float)
+        d = (total_reports - a - b - c).astype(float)
         
-        # Drug totals (VECTORIZED)
-        drug_totals = data.groupby('drug_name')['case_id'].nunique().reset_index()
-        drug_totals.columns = ['drug_name', 'drug_total']
+        # PRR = [a / (a + b)] / [c / (c + d)] = [a * (c + d)] / [c * (a + b)]
+        # ROR = (a / b) / (c / d) = (a * d) / (b * c)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            # PRR: proportion of event in suspect drug vs other drugs
+            prr_denom = c * (a + b)
+            prr_num = a * (c + d)
+            prr_values = np.where(
+                (prr_denom > 0) & (c > 0) & ((a + b) > 0),
+                prr_num / prr_denom,
+                999.0
+            )
+            df["prr"] = np.nan_to_num(prr_values, nan=999.0, posinf=999.0, neginf=999.0)
+            
+            # ROR: reporting odds ratio
+            ror_denom = b * c
+            ror_num = a * d
+            ror_values = np.where(
+                (ror_denom > 0) & (b > 0) & (c > 0) & (d > 0),
+                ror_num / ror_denom,
+                999.0
+            )
+            df["ror"] = np.nan_to_num(ror_values, nan=999.0, posinf=999.0, neginf=999.0)
+
+            # Vectorized Yates' corrected Chi-Square:
+            # chi2 = N * (|a*d - b*c| - N/2)^2 / [(a+b)*(c+d)*(a+c)*(b+d)]
+            N = a + b + c + d
+            chi2_denom = (a + b) * (c + d) * (a + c) * (b + d)
+            diff = np.abs(a * d - b * c) - (N / 2.0)
+            diff = np.maximum(diff, 0.0)
+            chi2_values = np.where(
+                chi2_denom > 0,
+                (N * (diff ** 2)) / chi2_denom,
+                0.0
+            )
+            df["chi2"] = np.nan_to_num(chi2_values, nan=0.0, posinf=999.0, neginf=0.0)
         
-        # Event totals (VECTORIZED)
-        event_totals = data.groupby('event_term')['case_id'].nunique().reset_index()
-        event_totals.columns = ['event_term', 'event_total']
+        # Drop temporary columns
+        df.drop(columns=["drug_total", "event_total"], inplace=True)
         
-        progress.progress(0.4, text="Merging statistics...")
-        
-        # Merge all (VECTORIZED)
-        signals = drug_event_counts.merge(drug_totals, on='drug_name')
-        signals = signals.merge(event_totals, on='event_term')
-        
-        progress.progress(0.6, text="Computing PRR and Chi-square...")
-        
-        # Compute contingency table values (VECTORIZED)
-        signals['n10'] = signals['drug_total'] - signals['n11']  # Drug but not event
-        signals['n01'] = signals['event_total'] - signals['n11']  # Event but not drug
-        signals['n00'] = total_cases - signals['n11'] - signals['n10'] - signals['n01']  # Neither
-        
-        # Safety: Remove negative values
-        mask = (signals['n10'] >= 0) & (signals['n01'] >= 0) & (signals['n00'] >= 0)
-        signals = signals[mask]
-        st.write(f"Valid contingency tables: {len(signals):,}")
-        
-        # Compute PRR (VECTORIZED)
-        signals['prr'] = self._compute_prr_vectorized(
-            signals['n11'], signals['n10'], signals['n01'], signals['n00']
+        # ========================================================================
+        # Handle ground truth labels if available
+        # ========================================================================
+        if label_col and label_col in icsr_data.columns:
+            logger.info(f"Using ground truth labels from '{label_col}'")
+
+            # Aggregate labels (majority vote)
+            label_agg = (
+                icsr_data.groupby(["drug_name", "event_term"])[label_col]
+                .apply(lambda x: (x.sum() / len(x)) > 0.5)
+                .astype(int)
+                .reset_index()
+            )
+
+            df = df.merge(
+                label_agg, on=["drug_name", "event_term"], how="left"
+            )
+            df["label"] = df[label_col].fillna(0).astype(int)
+            df.drop(columns=[label_col], inplace=True)
+        else:
+            # Use PRR-based heuristic (PRR >= 2.0 and Chi2 >= 4.0)
+            # EXCLUDE PRR=999 (error sentinel value)
+            df["label"] = (
+                (df["prr"] >= 2.0) & (df["prr"] < 999.0) & (df["chi2"] >= 4.0)
+            ).astype(int)
+            logger.info("Using PRR-based heuristic for labels (PRR>=2 and <999, Chi²>=4)")
+
+        # Ensure all canonical columns are present
+        for col in CanonicalSchema.TIER1_REQUIRED:
+            if col not in df.columns:
+                if col == "label":
+                    df["label"] = 0
+                else:
+                    raise ValueError(f"Failed to create canonical column: {col}")
+
+        # Replace inf values with large finite values
+        df["prr"] = df["prr"].replace([np.inf, -np.inf], 999.0)
+        df["ror"] = df["ror"].replace([np.inf, -np.inf], 999.0)
+        df["chi2"] = df["chi2"].replace([np.inf, -np.inf], 999.0)
+
+        # Final validation
+        CanonicalSchema.validate(df)
+
+        logger.info(
+            f"✅ Computed {len(df):,} signals in canonical schema "
+            f"({'with' if has_tier2 else 'without'} Tier 2 features)"
         )
-        
-        # Compute Chi-square (VECTORIZED)
-        signals['chi_square'] = self._compute_chi2_vectorized(
-            signals['n11'], signals['n10'], signals['n01'], signals['n00']
-        )
-        
-        progress.progress(0.8, text="Computing ROR...")
-        
-        # Compute ROR (VECTORIZED)
-        signals['ror'] = self._compute_ror_vectorized(
-            signals['n11'], signals['n10'], signals['n01'], signals['n00']
-        )
-        
-        # FDA Signal Criteria: PRR ≥ 2 AND Chi² ≥ 4 AND N ≥ 3
-        signals['is_signal'] = (
-            (signals['prr'] >= self.prr_threshold) & 
-            (signals['chi_square'] >= self.chi2_threshold) &
-            (signals['n11'] >= self.min_case_count)
-        )
-        
-        progress.progress(1.0, text="Complete!")
-        progress.empty()
-        
-        # Sort by signal strength
-        signals = signals.sort_values(['is_signal', 'chi_square'], ascending=[False, False])
-        
-        signal_count = signals['is_signal'].sum()
-        logger.info(f"Detected {signal_count:,} signals from {len(signals):,} pairs")
-        
-        # UNIVERSAL OUTPUT: Same columns for Demo 1M and FAERS
-        output = pd.DataFrame({
-            'drug_name': signals['drug_name'],
-            'event_term': signals['event_term'],
-            'case_count': signals.get('n11', signals.get('case_count', 0)),
-            'prr': signals['prr'],
-            'prr_lower': signals.get('prr_lower', signals['prr'] * 0.8),
-            'prr_upper': signals.get('prr_upper', signals['prr'] * 1.2),
-            'chi2': signals.get('chi_square', signals.get('chi2', 0)),
-            'ror': signals.get('ror', 0),
-            'is_signal_prr': signals.get('is_signal', signals.get('is_signal_prr', False))
-        })
-        st.success(f"✅ Detected {signal_count:,} regulatory signals")
-        
-                
-        return output[['drug_name', 'event_term', 'case_count', 'prr', 'prr_lower', 'prr_upper', 'chi2', 'ror', 'is_signal_prr']]
-    
-    def _compute_prr_vectorized(self, n11, n10, n01, n00):
-        """Vectorized PRR calculation"""
-        a = n11 / (n11 + n10)
-        b = n01 / (n01 + n00)
-        prr = np.where(b > 0, a / b, 0)
-        return prr
-    
-    def _compute_ror_vectorized(self, n11, n10, n01, n00):
-        """Vectorized ROR calculation"""
-        ror = np.where((n10 * n01) > 0, (n11 * n00) / (n10 * n01), 0)
-        return ror
-    
-    def _compute_chi2_vectorized(self, n11, n10, n01, n00):
-        """Vectorized Chi-square calculation"""
-        n = n11 + n10 + n01 + n00
-        expected_11 = (n11 + n10) * (n11 + n01) / n
-        chi2 = np.where(
-            expected_11 > 0,
-            n * ((n11 * n00 - n10 * n01) ** 2) / ((n11 + n10) * (n01 + n00) * (n11 + n01) * (n10 + n00)),
-            0
-        )
-        return chi2
+
+        return df

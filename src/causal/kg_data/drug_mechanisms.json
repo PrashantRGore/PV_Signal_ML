@@ -1,0 +1,346 @@
+{
+  "Paracetamol": {
+    "metabolites": [
+      {
+        "name": "NAPQI",
+        "targets": [
+          "Liver"
+        ],
+        "mechanism": "Glutathione depletion and mitochondrial oxidative stress",
+        "evidence": "well-established"
+      }
+    ],
+    "known_aes": [
+      {
+        "name": "Hepatotoxicity",
+        "meddra_code": "10019851",
+        "plausibility": 0.95,
+        "source": "SmPC"
+      },
+      {
+        "name": "Acute Liver Failure",
+        "meddra_code": "10000804",
+        "plausibility": 0.90,
+        "source": "FDA_Label"
+      },
+      {
+        "name": "Hepatic Necrosis",
+        "meddra_code": "10019837",
+        "plausibility": 0.88,
+        "source": "Literature"
+      }
+    ]
+  },
+  "Acetaminophen": {
+    "metabolites": [
+      {
+        "name": "NAPQI",
+        "targets": [
+          "Liver"
+        ],
+        "mechanism": "Glutathione depletion",
+        "evidence": "well-established"
+      }
+    ],
+    "known_aes": [
+      {
+        "name": "Hepatotoxicity",
+        "meddra_code": "10019851",
+        "plausibility": 0.95,
+        "source": "SmPC"
+      },
+      {
+        "name": "Acute Hepatic Failure",
+        "meddra_code": "10000804",
+        "plausibility": 0.90,
+        "source": "FDA_Label"
+      }
+    ]
+  },
+  "Ibuprofen": {
+    "metabolites": [
+      {
+        "name": "Carboxy-ibuprofen",
+        "targets": [
+          "Kidney",
+          "Stomach"
+        ],
+        "mechanism": "COX-1/COX-2 inhibition, gastric mucosal prostaglandin depletion, renal vasoconstriction",
+        "evidence": "well-established"
+      }
+    ],
+    "known_aes": [
+      {
+        "name": "Gastrointestinal Haemorrhage",
+        "meddra_code": "10017955",
+        "plausibility": 0.92,
+        "source": "SmPC"
+      },
+      {
+        "name": "Gastric Ulcer",
+        "meddra_code": "10017918",
+        "plausibility": 0.90,
+        "source": "FDA_Label"
+      },
+      {
+        "name": "Acute Kidney Injury",
+        "meddra_code": "10069339",
+        "plausibility": 0.85,
+        "source": "SmPC"
+      }
+    ]
+  },
+  "Celecoxib": {
+    "metabolites": [
+      {
+        "name": "Hydroxymethyl-celecoxib",
+        "targets": [
+          "Heart",
+          "Stomach"
+        ],
+        "mechanism": "Selective COX-2 inhibition suppressing prostacyclin without inhibiting thromboxane A2",
+        "evidence": "well-established"
+      }
+    ],
+    "known_aes": [
+      {
+        "name": "Myocardial Infarction",
+        "meddra_code": "10028596",
+        "plausibility": 0.88,
+        "source": "FDA_Boxed_Warning"
+      },
+      {
+        "name": "Gastrointestinal Bleeding",
+        "meddra_code": "10017955",
+        "plausibility": 0.80,
+        "source": "SmPC"
+      }
+    ]
+  },
+  "Rofecoxib": {
+    "metabolites": [],
+    "known_aes": [
+      {
+        "name": "Myocardial Infarction",
+        "meddra_code": "10028596",
+        "plausibility": 0.96,
+        "source": "FDA_Withdrawal"
+      },
+      {
+        "name": "Coronary Thrombosis",
+        "meddra_code": "10011089",
+        "plausibility": 0.90,
+        "source": "Literature"
+      }
+    ]
+  },
+  "Warfarin": {
+    "metabolites": [],
+    "known_aes": [
+      {
+        "name": "Hemorrhage",
+        "meddra_code": "10055798",
+        "plausibility": 0.95,
+        "source": "SmPC"
+      },
+      {
+        "name": "Gastrointestinal Hemorrhage",
+        "meddra_code": "10017955",
+        "plausibility": 0.92,
+        "source": "SmPC"
+      },
+      {
+        "name": "Haematuria",
+        "meddra_code": "10018867",
+        "plausibility": 0.86,
+        "source": "SmPC"
+      }
+    ]
+  },
+  "Metformin": {
+    "metabolites": [],
+    "known_aes": [
+      {
+        "name": "Lactic Acidosis",
+        "meddra_code": "10023930",
+        "plausibility": 0.89,
+        "source": "FDA_Boxed_Warning"
+      },
+      {
+        "name": "Gastrointestinal Disorder",
+        "meddra_code": "10017947",
+        "plausibility": 0.82,
+        "source": "SmPC"
+      }
+    ]
+  },
+  "Gentamicin": {
+    "metabolites": [],
+    "known_aes": [
+      {
+        "name": "Nephrotoxicity",
+        "meddra_code": "10029095",
+        "plausibility": 0.92,
+        "source": "SmPC"
+      },
+      {
+        "name": "Acute Kidney Injury",
+        "meddra_code": "10069339",
+        "plausibility": 0.90,
+        "source": "FDA_Label"
+      },
+      {
+        "name": "Ototoxicity",
+        "meddra_code": "10033441",
+        "plausibility": 0.88,
+        "source": "SmPC"
+      }
+    ]
+  },
+  "Lisinopril": {
+    "metabolites": [],
+    "known_aes": [
+      {
+        "name": "Acute Kidney Injury",
+        "meddra_code": "10069339",
+        "plausibility": 0.84,
+        "source": "SmPC"
+      },
+      {
+        "name": "Hyperkalaemia",
+        "meddra_code": "10020739",
+        "plausibility": 0.86,
+        "source": "SmPC"
+      },
+      {
+        "name": "Angioedema",
+        "meddra_code": "10002424",
+        "plausibility": 0.90,
+        "source": "FDA_Boxed_Warning"
+      }
+    ]
+  },
+  "Atorvastatin": {
+    "metabolites": [],
+    "known_aes": [
+      {
+        "name": "Rhabdomyolysis",
+        "meddra_code": "10039020",
+        "plausibility": 0.85,
+        "source": "SmPC"
+      },
+      {
+        "name": "Myopathy",
+        "meddra_code": "10028637",
+        "plausibility": 0.82,
+        "source": "SmPC"
+      },
+      {
+        "name": "Hepatic Enzyme Increased",
+        "meddra_code": "10019805",
+        "plausibility": 0.80,
+        "source": "SmPC"
+      }
+    ]
+  },
+  "Amoxicillin-Clavulanate": {
+    "metabolites": [],
+    "known_aes": [
+      {
+        "name": "Hepatotoxicity",
+        "meddra_code": "10019851",
+        "plausibility": 0.91,
+        "source": "SmPC"
+      },
+      {
+        "name": "Cholestatic Jaundice",
+        "meddra_code": "10008638",
+        "plausibility": 0.89,
+        "source": "FDA_Label"
+      }
+    ]
+  },
+  "Methotrexate": {
+    "metabolites": [],
+    "known_aes": [
+      {
+        "name": "Hepatotoxicity",
+        "meddra_code": "10019851",
+        "plausibility": 0.88,
+        "source": "FDA_Boxed_Warning"
+      },
+      {
+        "name": "Bone Marrow Failure",
+        "meddra_code": "10005988",
+        "plausibility": 0.86,
+        "source": "SmPC"
+      },
+      {
+        "name": "Pulmonary Fibrosis",
+        "meddra_code": "10037383",
+        "plausibility": 0.80,
+        "source": "SmPC"
+      }
+    ]
+  },
+  "Cisplatin": {
+    "metabolites": [],
+    "known_aes": [
+      {
+        "name": "Acute Kidney Injury",
+        "meddra_code": "10069339",
+        "plausibility": 0.94,
+        "source": "FDA_Boxed_Warning"
+      },
+      {
+        "name": "Nephrotoxicity",
+        "meddra_code": "10029095",
+        "plausibility": 0.95,
+        "source": "SmPC"
+      }
+    ]
+  },
+  "Doxorubicin": {
+    "metabolites": [],
+    "known_aes": [
+      {
+        "name": "Cardiomyopathy",
+        "meddra_code": "10007554",
+        "plausibility": 0.92,
+        "source": "FDA_Boxed_Warning"
+      },
+      {
+        "name": "Heart Failure",
+        "meddra_code": "10019279",
+        "plausibility": 0.89,
+        "source": "SmPC"
+      }
+    ]
+  },
+  "Isoniazid": {
+    "metabolites": [
+      {
+        "name": "Acetylhydrazine",
+        "targets": [
+          "Liver"
+        ],
+        "mechanism": "Reactive metabolite formation and hepatocyte necrosis",
+        "evidence": "established"
+      }
+    ],
+    "known_aes": [
+      {
+        "name": "Hepatotoxicity",
+        "meddra_code": "10019851",
+        "plausibility": 0.93,
+        "source": "FDA_Boxed_Warning"
+      },
+      {
+        "name": "Peripheral Neuropathy",
+        "meddra_code": "10034608",
+        "plausibility": 0.84,
+        "source": "SmPC"
+      }
+    ]
+  }
+}

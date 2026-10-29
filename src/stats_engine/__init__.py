@@ -1,3 +1,3 @@
-﻿from .disproportionality import DisproportionalityAnalysis
+from .disproportionality import DisproportionalityAnalysis
 
 __all__ = ['DisproportionalityAnalysis']

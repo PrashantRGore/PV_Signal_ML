@@ -1,0 +1,56 @@
+{
+  "Paracetamol": [
+    {
+      "organ": "Liver",
+      "specificity": 0.9
+    }
+  ],
+  "Gentamicin": [
+    {
+      "organ": "Kidney",
+      "specificity": 0.85
+    },
+    {
+      "organ": "Ear",
+      "specificity": 0.8
+    }
+  ],
+  "Doxorubicin": [
+    {
+      "organ": "Heart",
+      "specificity": 0.8
+    }
+  ],
+  "Methotrexate": [
+    {
+      "organ": "Liver",
+      "specificity": 0.75
+    },
+    {
+      "organ": "Kidney",
+      "specificity": 0.7
+    }
+  ],
+  "Isoniazid": [
+    {
+      "organ": "Liver",
+      "specificity": 0.82
+    }
+  ],
+  "Cisplatin": [
+    {
+      "organ": "Kidney",
+      "specificity": 0.88
+    }
+  ],
+  "Amiodarone": [
+    {
+      "organ": "Lung",
+      "specificity": 0.78
+    },
+    {
+      "organ": "Thyroid",
+      "specificity": 0.75
+    }
+  ]
+}

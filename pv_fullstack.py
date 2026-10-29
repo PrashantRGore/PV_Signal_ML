@@ -1,4 +1,4 @@
-﻿import os
+import os
 import pickle
 import subprocess
 import time
@@ -17,7 +17,7 @@ import requests
 # --------------------------------------------------------------------
 # Paths and constants
 # --------------------------------------------------------------------
-BASE_DIR = Path(r"C:\Users\koreo\Downloads\pv-signal-ml")
+BASE_DIR = Path(__file__).resolve().parent
 SAR_DIR = BASE_DIR / "sar_reports"
 REPORTS_DIR = SAR_DIR / "reports"
 GRAPH_PATH = SAR_DIR / "signal_graph.pkl"

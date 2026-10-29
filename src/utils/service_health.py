@@ -1,4 +1,4 @@
-﻿"""
+"""
 Enhanced Service Health Checker with model pull capability
 """
 import requests

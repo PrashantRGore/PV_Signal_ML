@@ -1,118 +1,123 @@
 """
-FAERS Data Downloader with Smart Caching
+FAERS Downloader - Download quarterly FAERS data from FDA
 """
 
 import requests
-import pandas as pd
-from typing import List, Tuple
-import streamlit as st
+from pathlib import Path
+from typing import Optional
 import zipfile
-import io
 from src.utils.logger import setup_logger
-from src.data.faers_cache import FAERSCache
 
 logger = setup_logger(__name__)
 
+
 class FAERSDownloader:
-    BASE_URL = "https://fis.fda.gov/content/Exports/faers_ascii_{year}Q{quarter}.zip"
+    """Download FAERS quarterly data from FDA."""
     
-    def __init__(self):
-        self.cache = FAERSCache()
-        logger.info(f"FAERSDownloader initialized with cache at {self.cache.cache_dir}")
+    BASE_URL = "https://fis.fda.gov/content/Exports/"
     
-    def download_and_process(self, quarters: List[Tuple[int, int]], 
-                            start_date, end_date) -> pd.DataFrame:
-        """Download with smart caching"""
-        logger.info(f"Processing {len(quarters)} quarters")
-        all_data = []
-        progress_bar = st.sidebar.progress(0)
-        status = st.sidebar.empty()
+    def __init__(self, cache_dir: Path = Path("data/faers_cache")):
+        self.cache_dir = cache_dir
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
         
-        for idx, (year, quarter) in enumerate(quarters):
-            status.write(f"📊 Quarter {idx+1}/{len(quarters)}: Q{quarter}-{year}")
+    def download_quarter(self, quarter: str) -> Optional[Path]:
+        """
+        Download FAERS quarterly data (wrapper for compatibility).
+        
+        Args:
+            quarter: Quarter string like "24Q3" or "2024Q3"
             
-            try:
-                # CHECK CACHE FIRST
-                if self.cache.is_cached(year, quarter):
-                    info = self.cache.get_info(year, quarter)
-                    st.sidebar.info(f"💾 Loading Q{quarter}-{year} from cache...")
-                    data = self.cache.load(year, quarter)
-                    st.sidebar.success(f"✅ Loaded from cache: {len(data):,} records ({info.get('size_mb', 0):.1f} MB)")
-                else:
-                    # Download from FDA
-                    st.sidebar.info(f"📥 Downloading Q{quarter}-{year} from FDA...")
-                    data = self._download_quarter(year, quarter, status)
-                    
-                    if data is not None and len(data) > 0:
-                        # SAVE TO CACHE
-                        cache_path = self.cache.save(year, quarter, data)
-                        st.sidebar.success(f"💾 Saved to cache: {cache_path.name}")
-                        logger.info(f"Cached Q{quarter}-{year} at {cache_path}")
-                
-                if data is not None and len(data) > 0:
-                    all_data.append(data)
-            
-            except Exception as e:
-                st.sidebar.error(f"❌ Q{quarter}-{year}: {str(e)}")
-                logger.error(f"Error Q{quarter}-{year}: {e}", exc_info=True)
-            
-            progress_bar.progress((idx + 1) / len(quarters))
+        Returns:
+            Path to downloaded zip file
+        """
+        # Parse quarter string
+        if len(quarter) == 4:  # Format: "24Q3"
+            year = f"20{quarter[:2]}"
+            q = quarter[2:]
+        elif len(quarter) == 6:  # Format: "2024Q3"
+            year = quarter[:4]
+            q = quarter[4:]
+        else:
+            logger.error(f"Invalid quarter format: {quarter}. Use '24Q3' or '2024Q3'")
+            return None
         
-        status.empty()
-        progress_bar.empty()
-        
-        if not all_data:
-            raise Exception("No data loaded")
-        
-        combined = pd.concat(all_data, ignore_index=True)
-        st.sidebar.success(f"🎉 Total: {len(combined):,} drug-event pairs")
-        logger.info(f"Combined {len(combined)} records from {len(all_data)} quarters")
-        return combined
+        return self.download(year, q)
     
-    def _download_quarter(self, year, quarter, status):
-        """Download and parse a quarter from FDA"""
-        url = self.BASE_URL.format(year=year, quarter=quarter)
-        status.write(f"🌐 Downloading: {url}")
+    def download(self, year: str, quarter: str) -> Optional[Path]:
+        """
+        Download FAERS data for specific year and quarter.
         
-        response = requests.get(url, timeout=120)
-        if response.status_code != 200:
-            raise Exception(f"HTTP {response.status_code}")
-        
-        status.write("📦 Extracting ZIP file...")
-        with zipfile.ZipFile(io.BytesIO(response.content)) as z:
-            drug_files = [f for f in z.namelist() if 'DRUG' in f.upper() and f.endswith('.txt')]
-            reac_files = [f for f in z.namelist() if 'REAC' in f.upper() and f.endswith('.txt')]
+        Args:
+            year: Year (e.g., "2024")
+            quarter: Quarter (e.g., "Q3")
             
-            if not drug_files or not reac_files:
-                raise Exception("Required files not found in ZIP")
+        Returns:
+            Path to downloaded zip file
+        """
+        # Normalize quarter format
+        if not quarter.startswith('Q'):
+            quarter = f"Q{quarter}"
+        
+        # Check cache first and verify zip integrity
+        cache_file = self.cache_dir / f"faers_{year}{quarter}.zip"
+        if cache_file.exists():
+            if zipfile.is_zipfile(cache_file):
+                logger.info(f"Using valid cached FAERS data: {cache_file}")
+                return cache_file
+            else:
+                logger.warning(f"Cached FAERS file {cache_file} is corrupted. Removing and re-downloading...")
+                try:
+                    cache_file.unlink()
+                except Exception as e:
+                    logger.error(f"Failed to remove corrupt cache file: {e}")
+        
+        # Construct download URL
+        # Example: https://fis.fda.gov/content/Exports/faers_ascii_2024q3.zip
+        filename = f"faers_ascii_{year.lower()}{quarter.lower()}.zip"
+        url = f"{self.BASE_URL}{filename}"
+        
+        logger.info(f"Downloading FAERS {year}{quarter} from {url}")
+        
+        try:
+            response = requests.get(url, stream=True, timeout=300)
             
-            status.write("📊 Parsing DRUG file...")
-            drug_df = pd.read_csv(z.open(drug_files[0]), sep='$', encoding='latin1', 
-                                 low_memory=False, on_bad_lines='skip')
+            if response.status_code != 200:
+                logger.error(f"Download failed: HTTP {response.status_code}")
+                return None
             
-            status.write("📊 Parsing REAC file...")
-            reac_df = pd.read_csv(z.open(reac_files[0]), sep='$', encoding='latin1',
-                                 low_memory=False, on_bad_lines='skip')
-        
-        status.write("🔗 Merging drug-event pairs...")
-        id_col_drug = 'primaryid' if 'primaryid' in drug_df.columns else 'caseid'
-        id_col_reac = 'primaryid' if 'primaryid' in reac_df.columns else 'caseid'
-        
-        merged = drug_df.merge(reac_df, left_on=id_col_drug, right_on=id_col_reac, how='inner')
-        
-        result = pd.DataFrame({
-            'case_id': merged[id_col_drug],
-            'drug_name': merged.get('drugname', merged.get('drug_name', '')),
-            'event_term': merged.get('pt', merged.get('event_term', '')),
-            'year': year,
-            'quarter': quarter
-        })
-        
-        # Clean data
-        result = result.dropna(subset=['drug_name', 'event_term'])
-        result = result[result['drug_name'].str.strip() != '']
-        result = result[result['event_term'].str.strip() != '']
-        result['drug_name'] = result['drug_name'].str.upper().str.strip()
-        result['event_term'] = result['event_term'].str.upper().str.strip()
-        
-        return result
+            # Download with progress
+            total_size = int(response.headers.get('content-length', 0))
+            downloaded = 0
+            
+            tmp_file = cache_file.with_suffix('.tmp')
+            with open(tmp_file, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+                        downloaded += len(chunk)
+                        
+                        if total_size > 0:
+                            progress = (downloaded / total_size) * 100
+                            if downloaded % (1024 * 1024 * 10) == 0:  # Log every 10MB
+                                logger.info(f"Progress: {progress:.1f}% ({downloaded / (1024*1024):.1f} MB)")
+            
+            if zipfile.is_zipfile(tmp_file):
+                tmp_file.replace(cache_file)
+                logger.info(f"✅ Downloaded and verified FAERS {year}{quarter} to {cache_file}")
+                return cache_file
+            else:
+                logger.error(f"Downloaded file for {year}{quarter} failed zip validation.")
+                tmp_file.unlink(missing_ok=True)
+                return None
+            
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Download failed: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            return None
+    
+    def list_available_quarters(self) -> list:
+        """List quarters available in cache."""
+        cached = list(self.cache_dir.glob("faers_*.zip"))
+        return [f.stem.replace("faers_", "") for f in cached]

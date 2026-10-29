@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-BASE_DIR = Path(r"C:\Users\koreo\Downloads\pv-signal-ml")
+BASE_DIR = Path(__file__).resolve().parents[2]
 INTERIM_DIR = BASE_DIR / "data" / "interim"
 PROCESSED_DIR = BASE_DIR / "data" / "processed"
 PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
