@@ -103,6 +103,17 @@ class SISATrainer:
         X = df[available_features].astype(float)
         y = df["label"].astype(int)
 
+        # Validate label distribution: single-class target cannot be trained meaningfully
+        unique_classes = np.unique(y)
+        if len(unique_classes) < 2:
+            raise ValueError(
+                f"Cannot train SISA model: target 'label' contains only one class ({unique_classes.tolist()}). "
+                "Supervised signal validation requires both positive and negative reference controls (e.g. from the OMOP "
+                "ground-truth reference benchmark). When raw FAERS data is loaded without matching OMOP reference controls, "
+                "signals default to label=0 to prevent circular target leakage. Please provide external ground-truth labels "
+                "before initiating model training."
+            )
+
         if np.isinf(X.to_numpy()).any():
             logger.warning("Found inf values - replacing with NaN")
             X = X.replace([np.inf, -np.inf], np.nan)

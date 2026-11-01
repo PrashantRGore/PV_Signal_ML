@@ -1,6 +1,6 @@
 """
-Regulatory Compliance Tracker - FIXED
-Logs ALL system operations to MLflow for FDA/EMA/PMDA audit compliance
+Regulatory Tracking - Research Prototype
+Logs system operations to MLflow for educational and prototype audit trail demonstration
 """
 
 import mlflow
@@ -12,7 +12,7 @@ import pandas as pd
 
 class RegulatoryTracker:
     """
-    Comprehensive audit trail logging for regulatory compliance
+    Audit trail logging for prototype signal detection workflows
     Tracks: Signal Detection, ML Training, SAR Generation, Unlearning
     """
     
@@ -72,7 +72,7 @@ class RegulatoryTracker:
             
             run_id = mlflow.active_run().info.run_id
             mlflow.set_tag("operation_type", "signal_detection")
-            mlflow.set_tag("regulatory_status", "compliant")
+            mlflow.set_tag("regulatory_status", "research_prototype")
             
             return run_id
     
@@ -136,7 +136,7 @@ class RegulatoryTracker:
             mlflow.set_tag("operation_type", "sar_generation")
             mlflow.set_tag("drug_name", drug_name)
             mlflow.set_tag("event_name", event_name)
-            mlflow.set_tag("regulatory_status", "compliant")
+            mlflow.set_tag("regulatory_status", "research_prototype")
             
             return run_id
     
@@ -162,7 +162,7 @@ class RegulatoryTracker:
             mlflow.log_param("operation_timestamp", datetime.now().isoformat())
             mlflow.log_param("model_version_before", model_version_before)
             mlflow.log_param("model_version_after", model_version_after)
-            mlflow.log_param("gdpr_compliance", "RIGHT_TO_BE_FORGOTTEN")
+            mlflow.log_param("gdpr_unlearning_exploration", "SISA_RIGHT_TO_BE_FORGOTTEN")
             
             if shard_id is not None:
                 mlflow.log_param("affected_shard_id", shard_id)
@@ -186,8 +186,8 @@ class RegulatoryTracker:
                 "retrain_time_seconds": retrain_time,
                 "success": success,
                 "error": error_message,
-                "compliance_reason": "GDPR Article 17 - Right to Erasure",
-                "hipaa_compliance": "Yes",
+                "compliance_reason": "GDPR Article 17 - Right to Erasure (SISA research exploration)",
+                "hipaa_compliance": "N/A (synthetic data)",
                 "data_retention_policy": "Case removed from training data permanently"
             }
             mlflow.log_dict(audit_info, "unlearning_audit_trail.json")
@@ -196,8 +196,8 @@ class RegulatoryTracker:
             mlflow.set_tag("operation_type", "unlearning")
             mlflow.set_tag("case_id", str(case_id))
             mlflow.set_tag("success", "true" if success else "false")
-            mlflow.set_tag("regulatory_status", "compliant")
-            mlflow.set_tag("gdpr_article_17", "compliant")
+            mlflow.set_tag("regulatory_status", "research_prototype")
+            mlflow.set_tag("gdpr_article_17", "research_prototype_sisa")
             
             return run_id
 

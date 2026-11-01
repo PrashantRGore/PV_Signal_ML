@@ -196,7 +196,7 @@ class SISATrainer:
             with mlflow.start_run(run_name=f"Unlearning_{case_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"):
                 
                 mlflow.set_tag("process.type", "data_unlearning")
-                mlflow.set_tag("regulatory.compliance", "GDPR_Article17_HIPAA")
+                mlflow.set_tag("regulatory.compliance", "N/A (synthetic data)")
                 mlflow.log_param("case_id", case_id)
                 mlflow.log_param("affected_shard", affected_shard)
                 mlflow.log_param("unlearning_date", datetime.now().isoformat())

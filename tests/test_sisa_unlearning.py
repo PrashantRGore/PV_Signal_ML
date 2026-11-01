@@ -44,3 +44,18 @@ def test_sisa_training_and_unlearning(tmp_path):
     assert "affected_shard" in res
     assert "new_model_fingerprint" in res
 
+def test_sisa_training_single_class_error(tmp_path):
+    """Test that SISA training with a single-class target raises a clear, descriptive ValueError."""
+    data = pd.DataFrame({
+        "case_id": [f"CASE_{i}" for i in range(50)],
+        "drug_name": ["DrugX"] * 50,
+        "event_term": ["Event1"] * 50,
+        "case_count": [10] * 50,
+        "prr": [2.5] * 50,
+        "ror": [2.6] * 50,
+        "chi2": [5.0] * 50,
+        "label": [0] * 50  # all zeroes (unconfirmed reference controls)
+    })
+    trainer = SISATrainer(model_dir=tmp_path / "sisa_single_class", n_shards=2)
+    with pytest.raises(ValueError, match="target 'label' contains only one class"):
+        trainer.train(data, n_shards=2)

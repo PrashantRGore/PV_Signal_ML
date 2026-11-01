@@ -20,7 +20,7 @@ Open-source research prototype for pharmacovigilance signal detection and machin
 
 ✅ Graph RAG + Ollama SAR generation
 
-✅ MLflow experiment tracking (21 CFR Part 11)
+✅ MLflow experiment tracking (Part 11-inspired)
 
 ✅ Full audit trail
 
@@ -266,7 +266,7 @@ class MachineUnlearner:
 
             
 
-        # Log unlearning request (21 CFR Part 11 audit)
+        # Log unlearning request (Part 11-inspired audit)
 
         unlearn_entry = {
 
@@ -974,7 +974,9 @@ with tabs[1]:
 
                         if 'label' not in signals_df.columns:
 
-                            signals_df['label'] = ((signals_df['prr'] >= 2.0) & (signals_df.get('chi2', 4.0) >= 4.0)).astype(int)
+                            signals_df['label'] = 0
+
+                            signals_df['is_evans_signal'] = ((signals_df['prr'] >= 2.0) & (signals_df.get('chi2', 4.0) >= 4.0)).astype(int)
 
                         
 
@@ -1071,6 +1073,14 @@ with tabs[1]:
                 # ===== STEP 7: PREVIEW =====
 
                 st.success(f"✅ **LOADED {len(signals_df):,} signals** with **{len(signals_df.columns)} columns**")
+
+                if 'label' in signals_df.columns and signals_df['label'].nunique() < 2:
+                    st.info(
+                        "ℹ️ **Ground Truth Label Notice:** Target 'label' contains only class 0 (unconfirmed reference). "
+                        "Disproportionality metrics (PRR, ROR, Chi²) are fully computed and available for exploratory signal screening. "
+                        "However, supervised SISA ML model training (Tab 4) requires both positive and negative reference controls "
+                        "(e.g., from the OMOP reference benchmark). Unconfirmed pairs default to label=0 to prevent circular target leakage."
+                    )
 
                 st.markdown("---")
 
@@ -1654,7 +1664,7 @@ with tabs[3]:
 
         
 
-        **Regulatory Note:** Per FDA 21 CFR Part 11, fabricating missing clinical 
+        **Regulatory Note:** Per data integrity principles inspired by FDA 21 CFR Part 11, fabricating missing clinical 
 
         features would constitute data integrity violation.
 
@@ -2190,11 +2200,25 @@ with tabs[4]:
 
     
 
-            # Check for label column
+            # Check for label column and class balance
 
             if 'label' not in st.session_state.signals.columns:
 
                 st.error("❌ 'label' column missing - cannot train")
+
+                st.stop()
+
+            unique_labels = st.session_state.signals['label'].dropna().unique()
+
+            if len(unique_labels) < 2:
+
+                st.error(
+                    f"❌ Cannot train SISA model: target 'label' contains only one class ({unique_labels.tolist()}). "
+                    "Supervised ML training requires both positive and negative reference controls. "
+                    "When loading raw FAERS data without matching OMOP ground truth controls, signals default to label=0 "
+                    "to prevent circular target leakage from PRR/Chi² thresholds. "
+                    "Please load data with ground-truth reference controls (e.g. from the OMOP reference benchmark) before training."
+                )
 
                 st.stop()
 
@@ -2224,29 +2248,37 @@ with tabs[4]:
 
             with st.spinner("Training SISA..."):
 
-                with mlflow.start_run():
+                try:
 
-                    trainer = SISATrainer(model_dir=config.MODEL_DIR)
+                    with mlflow.start_run():
 
-                    result = trainer.train(
+                        trainer = SISATrainer(model_dir=config.MODEL_DIR)
 
-                        st.session_state.signals,
+                        result = trainer.train(
 
-                        n_shards=num_shards,
+                            st.session_state.signals,
 
-                        feature_cols=available
+                            n_shards=num_shards,
 
-                    )
+                            feature_cols=available
 
-                    st.session_state.trained_model = trainer
+                        )
 
-                    st.session_state.training_results = result
+                        st.session_state.trained_model = trainer
 
-                    auc = result.get('auc', 0.5)
+                        st.session_state.training_results = result
 
-                    st.success(f"✅ PHASE 3 COMPLETE | ROC-AUC: {auc:.3f} | MLflow tracked")
+                        auc = result.get('auc', 0.5)
 
-            st.rerun()
+                        st.success(f"✅ SISA Training Complete | ROC-AUC: {auc:.3f} | MLflow tracked")
+
+                        st.rerun()
+
+                except Exception as e:
+
+                    st.error(f"❌ SISA Training failed: {e}")
+
+                    logger.error(f"SISA Training error: {e}", exc_info=True)
 
         
 
@@ -2308,7 +2340,7 @@ with tabs[4]:
 
         if hasattr(st.session_state.unlearner, 'unlearn_log') and st.session_state.unlearner.unlearn_log:
 
-            st.subheader("📋 Unlearning Audit Trail (21 CFR Part 11)")
+            st.subheader("📋 Unlearning Audit Trail (Part 11-inspired)")
 
             audit_df = pd.DataFrame(st.session_state.unlearner.unlearn_log)
 
