@@ -27,7 +27,7 @@ class PipelineState:
         - Automatic downstream invalidation on data changes
         - Validation checks for column counts
         - Corruption detection and auto-recovery
-        - Complete audit trail for GxP compliance
+        - Complete audit trail for prototype data governance
     """
     
     def __init__(self):

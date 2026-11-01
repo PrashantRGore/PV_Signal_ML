@@ -1,5 +1,5 @@
 """
-SISA Trainer - Production & Regulatory Compliant Implementation
+SISA Trainer - Research Prototype Implementation
 Sharded, Isolated, Sliced, Aggregated (SISA) training with verifiable machine unlearning (GDPR Art. 17).
 """
 

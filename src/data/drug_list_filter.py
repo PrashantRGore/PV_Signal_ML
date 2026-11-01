@@ -1,6 +1,6 @@
 """
 Drug List Filter for Targeted Surveillance
-Regulatory Compliant: FDA, EMA, PMDA standards
+Standard Alignment: Aligned with FDA, EMA, PMDA concepts
 """
 
 import pandas as pd

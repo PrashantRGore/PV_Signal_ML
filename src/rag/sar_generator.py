@@ -1,7 +1,7 @@
 """
 Signal Assessment Report (SAR) Generator
 =========================================
-Generates GVP Module IX compliant Pharmacovigilance Safety Assessment Reports.
+Generates Pharmacovigilance Safety Assessment Reports aligned with EMA GVP Module IX.
 
 Architecture:
 - Primary: Local Open-Source LLM via Ollama (llama3.2 / mistral) - 100% offline, zero cloud cost.
@@ -149,7 +149,7 @@ class SARGenerator:
 
         instructions = """
 You are a senior pharmacovigilance medical officer preparing a formal Signal Assessment Report (SAR)
-compliant with EMA GVP Module IX and FDA pharmacovigilance guidelines.
+aligned with EMA GVP Module IX and FDA pharmacovigilance guidelines.
 
 Generate a structured SAR with the following exact markdown headings:
 # SAFETY ASSESSMENT REPORT (SAR)
@@ -200,7 +200,7 @@ CITATIONS:
         citations: List[Citation]
     ) -> str:
         """
-        Deterministic, audit-compliant regulatory SAR generator.
+        Deterministic regulatory SAR template generator modelled on GVP Module IX.
         Runs instantly with zero external dependencies when local LLM is offline.
         """
         drug = str(signal_data.get("drug_name", "UNKNOWN DRUG")).upper()

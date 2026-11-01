@@ -124,7 +124,7 @@ class RegulatoryKnowledgeGraph:
                     'AI models must be explainable (SHAP, LIME)',
                     'Training data must be documented',
                     'Model versioning required',
-                    'Audit trail mandatory (21 CFR Part 11)'
+                    'Audit trail recommended (Part 11-inspired)'
                 ]
             },
             {

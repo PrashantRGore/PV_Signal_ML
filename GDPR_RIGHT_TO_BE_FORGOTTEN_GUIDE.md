@@ -297,8 +297,8 @@ Complete audit trail:
 
 - **Immutable:** All deletions logged with timestamp
 - **Traceable:** Pseudonyms link to deletion records
-- **Compliant:** Meets GDPR Article 17 requirements
-- **Regulatory:** Ready for inspection
+- **Research Exploration:** Explores algorithmic machine unlearning per GDPR Article 17 concepts
+- **Audit Trail:** Tracks unlearning requests and affected shards
 
 ### Data Protection
 

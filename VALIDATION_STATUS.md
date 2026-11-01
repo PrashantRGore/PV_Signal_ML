@@ -52,7 +52,7 @@
 | **Data Management** | ✅ Implemented | Data lineage and governance |
 | **Quality Assurance** | 🟡 Partial | Code review and testing, no formal QA plan |
 
-**Conclusion:** Algorithmically compliant with EMA guidelines, but not formally validated for production use.
+**Conclusion:** Algorithmically aligned with EMA guidelines, but not formally validated for production use.
 
 ### CIOMS XIV - Periodic Safety Updates
 
