@@ -1,6 +1,6 @@
-# Enhanced Signal Assessment Report (SAR) – CIOMS XIV Compliant
+# Enhanced Signal Assessment Report (SAR) – Modelled on CIOMS XIV
 
-**Template for EMA-compliant signal assessment with causality assessment**
+**Template for signal assessment with causality assessment aligned with EMA guidelines**
 
 ---
 

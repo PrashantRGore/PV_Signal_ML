@@ -99,7 +99,7 @@ Verify the statistical engines, OMOP benchmark, imputer, causality assessor, and
 ```bash
 python -m pytest
 ```
-*Expected: 16 passed unit tests (or 15 passed, 1 skipped if PyTorch is not installed).*
+*Expected: 15 passed unit tests (or 14 passed, 1 skipped if PyTorch is not installed).*
 
 ### 3. Launch the Application
 
@@ -150,11 +150,7 @@ PV_Signal_ML/
 │   │       └── rxnorm_client.py     # NIH RxNav RxNorm API client with SQLite cache
 │   │
 │   ├── explainability/
-│   │   ├── shap_analysis.py         # SHAP TreeExplainer with numeric-only filtering
-│   │   └── shap_analyzer_v2.py      # Extended explainability analyzer
-│   │
-│   ├── features/
-│   │   └── build_features_2020.py   # Monthly rolling window aggregation
+│   │   └── shap_analysis.py         # SHAP TreeExplainer with numeric-only filtering
 │   │
 │   ├── literature/
 │   │   └── pubmed_miner.py          # PubMed E-utilities search with rate limiting

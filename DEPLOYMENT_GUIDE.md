@@ -12,12 +12,12 @@
 A **research prototype pharmacovigilance signal detection system** that:
 - ✅ Detects adverse event signals using statistical analysis (PRR, Chi-square)
 - ✅ Ranks signals using ML (XGBoost) with explainability (SHAP)
-- ✅ Generates regulatory-compliant reports using RAG (Ollama Local LLM)
-- ✅ Maintains complete audit trails (FDA 21 CFR Part 11)
-- ✅ Implements GDPR compliance (right to be forgotten)
+- ✅ Generates reports modelled on regulatory guidelines using RAG (Ollama Local LLM)
+- ✅ Maintains audit trails (FDA 21 CFR Part 11-inspired)
+- ✅ Implements prototype unlearning (GDPR Article 17-inspired)
 - ✅ Integrates with FDA FAERS data
 
-### Regulatory Compliance
+### Regulatory Framework Alignment (Concepts Modeled)
 - ✅ **EMA GVP Module IX** - Signal management
 - ✅ **FDA 21 CFR Part 11** - Electronic records & audit trails
 - ✅ **CIOMS XIV** - Periodic safety updates
@@ -63,46 +63,25 @@ A **research prototype pharmacovigilance signal detection system** that:
 
 ```
 pv-signal-ml/
-├── Core Signal Detection
-│   ├── stats_engine.py                    # PRR/Chi-square calculations
-│   ├── pv_signal_ml_pipeline.py          # XGBoost training (MLflow logging ✅)
-│   ├── prepare_ml_features.py            # Feature engineering
-│   ├── faers_build_signals.py            # FAERS data ingestion
-│   └── shap_analysis_simple.py           # Model explainability
-│
-├── RAG & Contextualization
-│   ├── rag_langchain.py                  # Ollama Local LLM RAG
-│   ├── rag_signal_evidence.py            # Similar signals + PubMed
-│   ├── rag_engine.py                     # Semantic search
-│   └── rag_pv_signals.py                 # PV-specific RAG
-│
-├── Report Generation
-│   ├── signal_report_builder.py          # SAR generation
-│   ├── psmf_annex_generator.py           # PSMF Annex D
-│   ├── export_assessment_bundle.py       # ZIP bundles
-│   └── generate_psmf.py                  # Full PSMF
-│
-├── Compliance & Audit
-│   ├── audit_logging.py                  # Comprehensive audit trail (MLflow logging ✅)
-│   ├── gdpr_deletion_registry.py         # Right to be forgotten
-│   ├── data_lineage.py                   # Data provenance
-│   ├── change_control.py                 # Change management
-│   └── run_metadata.py                   # MLflow integration
-│
-├── Monitoring & Analysis
-│   ├── drift_monitor.py                  # Model drift detection
-│   └── fairness_analyzer.py              # Bias detection
-│
-├── UI & API
-│   ├── app.py                   # Main Streamlit app (auto-start API ✅)
-│   ├── pv_ui.py                          # Alternative UI
-│   └── api.py                            # FastAPI backend (MLflow logging ✅)
-│
-├── Configuration & Documentation
-│   ├── requirements.txt                  # Python dependencies
-│   ├── README.md                         # Project overview
-│   ├── PROJECT_ANALYSIS_AND_ROADMAP.md  # Complete analysis
-│   ├── CRITICAL_FIXES_IMPLEMENTATION.md # Implementation guide
+├── app.py                            # Unified Streamlit application
+├── config.py                         # System configuration & validation status
+├── requirements.txt                  # Python dependencies
+├── pytest.ini                        # Pytest configuration
+├── src/
+│   ├── stats_engine/                 # PRR, ROR, and Chi-square disproportionality
+│   ├── ml/                           # SISA trainer, causality scorer, feature pipeline
+│   │   ├── feature_engineering/      # Feature engineering pipeline
+│   │   └── nan_handler/              # MICE & DAE missing data imputation
+│   ├── causal/                       # Knowledge graph & causal features
+│   ├── data/                         # Canonical schema, HF loader, OMOP benchmarks, RxNorm
+│   ├── explainability/               # SHAP TreeExplainer
+│   ├── literature/                   # PubMed miner
+│   ├── rag/                          # SAR report generator (Ollama + deterministic template)
+│   ├── regulatory/                   # WHO-UMC & Naranjo causality assessor
+│   └── utils/                        # Logging, state management, safe aggregation
+├── templates/                        # SAR markdown templates
+└── tests/                            # Automated unit test suite
+```
 │   ├── DEPLOYMENT_GUIDE.md              # This file
 │   └── .gitignore                        # Git ignore rules
 │
@@ -125,7 +104,7 @@ pv-signal-ml/
 - `api.py` - Added MLflow + audit logging for report generation
 
 **Impact:**
-- ✅ Complete audit trail (FDA 21 CFR Part 11 compliance)
+- ✅ Comprehensive audit trail (FDA 21 CFR Part 11-inspired)
 - ✅ Full traceability of all ML operations
 - ✅ Unified MLflow tracking URI
 
@@ -321,8 +300,8 @@ analysis, machine learning, and retrieval-augmented generation.
 - Signal detection (PRR, Chi-square)
 - ML-based ranking (XGBoost + SHAP)
 - RAG-powered reports (Ollama Local LLM)
-- Complete audit trails (FDA 21 CFR Part 11)
-- GDPR compliance (right to be forgotten)
+- Audit trails (FDA 21 CFR Part 11-inspired)
+- Machine unlearning prototype (GDPR Article 17-inspired)
 
 ## Quick Start
 ```bash

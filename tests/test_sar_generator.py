@@ -3,7 +3,7 @@ from src.rag.sar_generator import SARGenerator
 
 
 def test_sar_generator_deterministic_fallback():
-    """Verify that SARGenerator produces a complete, compliant SAR even when Ollama is offline."""
+    """Verify that SARGenerator produces a complete, aligned SAR even when Ollama is offline."""
     # Point to an unreachable port to test offline fallback
     generator = SARGenerator(model_name="llama3.2", base_url="http://localhost:9999")
 
